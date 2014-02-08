@@ -16,17 +16,17 @@ public class RefugeeFlow extends PersistableObject {
     }
 
     public RefugeeFlow(Country fromCountry, Country toCountry) {
-        mFromCountry =fromCountry;
+        mFromCountry = fromCountry;
         mToCountry = toCountry;
     }
 
     // Required by ORMLite
     public RefugeeFlow() {}
 
-    @DatabaseField(columnName = Columns.FROM_COUNTRY_COLUMN, canBeNull = false)
+    @DatabaseField(columnName = Columns.FROM_COUNTRY_COLUMN, foreign = true, canBeNull = false)
     private Country mFromCountry;
 
-    @DatabaseField(columnName = Columns.TO_COUNTRY_COLUMN, canBeNull = false)
+    @DatabaseField(columnName = Columns.TO_COUNTRY_COLUMN, foreign = true, canBeNull = false)
     private Country mToCountry;
 
     @DatabaseField(columnName = Columns.YEAR_COLUMN, canBeNull = false)
