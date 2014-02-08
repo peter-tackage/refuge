@@ -2,6 +2,8 @@ package com.moac.android.refuge.importer;
 
 import android.test.InstrumentationTestCase;
 
+import com.moac.android.refuge.database.MockModelService;
+import com.moac.android.refuge.database.ModelService;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
 
@@ -30,7 +32,8 @@ public class XMLFileImporterTest extends InstrumentationTestCase {
     }
 
     public void testDOMHanlder () throws IOException, ParserConfigurationException, SAXException {
-        DOMFileImporter domParser = new DOMFileImporter();
+        ModelService mockModelService = new MockModelService();
+        DOMFileImporter domParser = new DOMFileImporter(mockModelService);
         InputStream is = getInstrumentation().getContext().getResources().getAssets().open(testDataXMLFile);
         domParser.parse(is);
 
