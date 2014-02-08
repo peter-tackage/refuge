@@ -1,5 +1,6 @@
 package com.moac.android.refuge.model;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -42,5 +43,14 @@ public class Country extends PersistableObject {
 
     public double getLatitude() { return mLatitude; }
     public void setLatitude(double latitude) { mLatitude = mLatitude; }
+
+    public void setLatLng(double latitude, double longitude) {
+        mLongitude = longitude;
+        mLatitude = latitude;
+    }
+
+    public LatLng getLatLng() {
+        return new LatLng(mLatitude, mLongitude);
+    }
 
 }
