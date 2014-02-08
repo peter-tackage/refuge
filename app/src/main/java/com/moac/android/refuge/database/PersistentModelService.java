@@ -2,6 +2,7 @@ package com.moac.android.refuge.database;
 
 import android.database.SQLException;
 
+import com.j256.ormlite.dao.GenericRawResults;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
@@ -57,87 +58,87 @@ public class PersistentModelService implements ModelService {
 
     @Override
     public Country getCountry(long id) {
-        return null;
+        return queryById(id, Country.class);
     }
 
     @Override
     public long create(Country country) {
-        return 0;
+        return create(country);
     }
 
     @Override
     public void update(Country country) {
-
+        update(country);
     }
 
     @Override
     public void deleteCountry(long id) {
-
+        delete(id, Country.class);
     }
 
     @Override
     public List<Demography> getAllDemographics() {
-        return null;
+        return queryAll(Demography.class);
     }
 
     @Override
     public Demography getDemography(long id) {
-        return null;
+        return queryById(id, Demography.class);
     }
 
     @Override
     public long create(Demography demography) {
-        return 0;
+        return create(demography);
     }
 
     @Override
     public void update(Demography demography) {
-
+        update(demography);
     }
 
     @Override
     public void deleteDemography(long id) {
-
+        delete(id, Demography.class);
     }
 
     @Override
     public List<RefugeeFlow> getAllRefugeeFlows() {
-        return null;
+        return queryAll(RefugeeFlow.class);
     }
 
     @Override
     public RefugeeFlow getRefugeeFlow(long id) {
-        return null;
+        return queryById(id, RefugeeFlow.class);
     }
 
     @Override
     public long create(RefugeeFlow refugeeFlow) {
-        return 0;
+        return create(refugeeFlow);
     }
 
     @Override
     public void update(RefugeeFlow refugeeFlow) {
-
+        update(refugeeFlow);
     }
 
     @Override
     public void deleteRefugeeFlow(long id) {
-
+        delete(id, RefugeeFlow.class);
     }
 
     @Override
     public long getTotalRefugeeFlowTo(long countryId) {
-        return 0;
+        return 0; //queryTotalRefugeeFlowTo(countryId);
     }
 
     @Override
     public long getTotalRefugeeFlowFrom(long countryId) {
-        return 0;
+        return 0; //queryTotalRefugeeFlowFrom(countryId);
     }
 
     @Override
     public List<RefugeeFlow> getRefugeeFlows(long countryId) {
-        return null;
+        return null; //queryAllRefugeeFlowsFrom(countryId);
     }
 
 
@@ -145,7 +146,20 @@ public class PersistentModelService implements ModelService {
      * Bespoke queries - examples
      */
 
+//    private queryTotalRefugeeFlowTo(long countryId) {
+//        GenericRawResults<String[]> rawResults = mDbHelper.getDaoEx(RefugeeFlow.class)
+//                orderDao.queryRaw(
+//                        "select count(*) from orders where account_id = 10");
+//        return mDbHelper.
+//    }
 
+//    private queryTotalRefugeeFlowFrom(long countryId) {
+//
+//    }
+//
+//    private queryAllRefugeeFlowsFrom(long countryId) {
+//
+//    }
 //
 //    public List<Restriction> queryAllRestrictionsForMemberId(long memberId) {
 //        try {
