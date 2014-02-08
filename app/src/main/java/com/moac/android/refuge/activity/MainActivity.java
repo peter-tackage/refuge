@@ -3,30 +3,33 @@ package com.moac.android.refuge.activity;
 import android.app.Activity;
 ;
 import android.app.ActionBar;
-import android.app.Fragment;
 import android.app.FragmentManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
-import android.widget.TextView;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
 import com.moac.android.refuge.RefugeApplication;
 import com.moac.android.refuge.database.DatabaseService;
 import com.moac.android.refuge.fragment.NavigationDrawerFragment;
 import com.moac.android.refuge.R;
-import com.moac.android.refuge.fragment.RefugeMapFragment;
 
 import javax.inject.Inject;
 
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+    public static final String MAP_FRAGMENT_TAG = "MAP";
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -40,19 +43,28 @@ public class MainActivity extends Activity
 
     @Inject
     DatabaseService mDatabase;
+    private GoogleMap mMap;
+    private MapFragment mMapFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-            MapsInitializer.initialize(this);
-        } catch (GooglePlayServicesNotAvailableException e) {
-            Log.e("Address Map", "Could not initialize google play", e);
-        }
+
         // Inject database
         RefugeApplication.from(this).inject(this);
 
+        try {
+            MapsInitializer.initialize(this);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            Log.e(TAG, "Failed to initialise Google Maps", e);
+        }
         setContentView(R.layout.activity_main);
+
+        mMapFragment = (MapFragment) getFragmentManager().findFragmentByTag(MAP_FRAGMENT_TAG);
+        if (mMapFragment == null) {
+            mMapFragment = MapFragment.newInstance();
+            getFragmentManager().beginTransaction().replace(R.id.container, mMapFragment, MAP_FRAGMENT_TAG).commit();
+        }
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -65,11 +77,22 @@ public class MainActivity extends Activity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        mMap = mMapFragment.getMap();
+        Circle circle = mMap.addCircle(new CircleOptions()
+                .center(new LatLng(-33.87365, 151.20689))
+                .radius(10000)
+                .strokeColor(Color.RED)
+                .fillColor(Color.BLUE));
+    }
+
+    @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.container, RefugeMapFragment.newInstance())
+                .replace(R.id.container, MapFragment.newInstance())
                 .commit();
     }
 
@@ -126,8 +149,7 @@ public class MainActivity extends Activity
      RefugeMapFragment mMapFragment;
      SearchView mSearchView;
 
-     @Override
-     protected void onCreate(Bundle savedInstanceState) {
+     @Override protected void onCreate(Bundle savedInstanceState) {
      super.onCreate(savedInstanceState);
      Log.v(TAG, "onCreate()- start");
      setContentView(R.layout.activity_main);
@@ -141,8 +163,7 @@ public class MainActivity extends Activity
      handleIntent(getIntent());
      }
 
-     @Override
-     protected void onNewIntent(Intent _intent) {
+     @Override protected void onNewIntent(Intent _intent) {
      Log.i(TAG, "onNewIntent - received intent");
      //  Removed this as causes the fragment to reperform search on rotation.
      // setIntent(_intent);
@@ -156,13 +177,11 @@ public class MainActivity extends Activity
      }
      }
 
-     @Override
-     public void onSaveInstanceState(Bundle _outstate) {
+     @Override public void onSaveInstanceState(Bundle _outstate) {
      super.onSaveInstanceState(_outstate);
      }
 
-     @Override
-     public boolean onCreateOptionsMenu(Menu menu) {
+     @Override public boolean onCreateOptionsMenu(Menu menu) {
      // Inflate the options menu from XML
      MenuInflater inflater = getMenuInflater();
      inflater.inflate(R.menu.options_menu, menu);
@@ -173,8 +192,7 @@ public class MainActivity extends Activity
      mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
      mSearchView.setIconifiedByDefault(true);
      mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-     @Override
-     public void onFocusChange(View v, boolean hasFocus) {
+     @Override public void onFocusChange(View v, boolean hasFocus) {
      if(v == mSearchView && !hasFocus) mSearchView.setIconified(true);
      }
      });
