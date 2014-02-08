@@ -15,6 +15,13 @@ public class Country extends PersistableObject {
         public static final String LATITUDE_COLUMN = "LATITUDE";
     }
 
+    public Country(String name) {
+        mName = name;
+    }
+
+    // Required by ORMLite
+    public Country() {}
+
     @DatabaseField(columnName = Columns.NAME_COLUMN, unique = true, canBeNull = false)
     private String mName;
 

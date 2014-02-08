@@ -4,7 +4,6 @@ import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.Demography;
 import com.moac.android.refuge.model.RefugeeFlow;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MockModelService implements ModelService{
