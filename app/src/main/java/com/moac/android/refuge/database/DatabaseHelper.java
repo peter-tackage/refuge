@@ -34,7 +34,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private final Map<Class<? extends PersistableObject>, DatabaseTableConfig<? extends PersistableObject>> tableConfigs =
             new HashMap<Class<? extends PersistableObject>, DatabaseTableConfig<? extends PersistableObject>>();
 
-    // FIXME Add the classes into the PERSISTABLE_OBJECTS
     public DatabaseHelper(Context ctx) {
         super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
         PERSISTABLE_OBJECTS = new Class[]{Country.class, Demography.class, RefugeeFlow.class};
