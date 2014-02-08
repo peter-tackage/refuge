@@ -1,5 +1,6 @@
 package com.moac.android.refuge.fragment;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,16 +12,23 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.Marker;
+import com.moac.android.refuge.RefugeApplication;
+import com.moac.android.refuge.database.DatabaseService;
 import com.moac.android.refuge.maps.InfoAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 public class RefugeMapFragment extends MapFragment implements GoogleMap.OnMarkerClickListener {
 
     private static final String TAG = RefugeMapFragment.class.getSimpleName();
 
     private Map<Marker, Object> mMarkerMap;
+
+    @Inject
+    DatabaseService mDatabase;
 
     public RefugeMapFragment getInstance() {
         return new RefugeMapFragment();
@@ -30,8 +38,16 @@ public class RefugeMapFragment extends MapFragment implements GoogleMap.OnMarker
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate() - start");
         super.onCreate(savedInstanceState);
+
         mMarkerMap = new HashMap<Marker, Object>();
         setRetainInstance(true);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        // Inject database
+        RefugeApplication.from(this).inject(this);
     }
 
     @Override

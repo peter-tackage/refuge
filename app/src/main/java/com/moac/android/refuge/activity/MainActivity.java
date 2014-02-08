@@ -17,9 +17,13 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.MapsInitializer;
+import com.moac.android.refuge.RefugeApplication;
+import com.moac.android.refuge.database.DatabaseService;
 import com.moac.android.refuge.fragment.NavigationDrawerFragment;
 import com.moac.android.refuge.R;
 import com.moac.android.refuge.fragment.RefugeMapFragment;
+
+import javax.inject.Inject;
 
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -34,6 +38,9 @@ public class MainActivity extends Activity
      */
     private CharSequence mTitle;
 
+    @Inject
+    DatabaseService mDatabase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +49,9 @@ public class MainActivity extends Activity
         } catch (GooglePlayServicesNotAvailableException e) {
             Log.e("Address Map", "Could not initialize google play", e);
         }
+        // Inject database
+        RefugeApplication.from(this).inject(this);
+
         setContentView(R.layout.activity_main);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
