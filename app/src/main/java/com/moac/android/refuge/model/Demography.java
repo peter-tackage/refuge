@@ -15,6 +15,13 @@ public class Demography extends PersistableObject {
         public static final String MIGRATION_COLUMN = "MIGRATION";
     }
 
+    public Demography(Country country) {
+        mCountry = country;
+    }
+
+    // Required by ORMLite
+    public Demography() {}
+
     @DatabaseField(columnName = Columns.COUNTRY_COLUMN, foreign = true, canBeNull = false)
     private Country mCountry;
 
