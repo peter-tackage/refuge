@@ -28,7 +28,6 @@ import com.moac.android.refuge.model.RefugeeFlow;
 import com.moac.android.refuge.util.DoOnce;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -72,7 +71,7 @@ public class MainActivity extends Activity
                 .findFragmentById(R.id.map)).getMap();
 
 
-        String assetFile = "smalltestsample.xml";
+        String assetFile = "UNDataExport2012.xml";
         try {
             boolean attemptedToLoad = DoOnce.doOnce(this, LOAD_DATA_TASK_TAG, new LoadDataRunnable(new DOMFileImporter(mModelService), getAssets().open(assetFile)));
             Log.i(TAG, "Attempted to load data: " + attemptedToLoad);
@@ -85,7 +84,7 @@ public class MainActivity extends Activity
         Log.i(TAG, "We loaded these countries: " + allCountries);
         for(Country c : allCountries) {
             Log.i(TAG, "Country: " + c.getName());
-            List<RefugeeFlow> flows = mModelService.getRefugeeFlows(c.getId());
+            List<RefugeeFlow> flows = mModelService.getRefugeeFlowsFrom(c.getId());
             Log.i(TAG, "Country has flows into: " + c.getName());
 
         }
@@ -136,7 +135,7 @@ public class MainActivity extends Activity
     }
 
     private void drawFromCircles(long toCountryId, int toCountryColor, long maxFlow) {
-        List<RefugeeFlow> flows = mModelService.getRefugeeFlows(toCountryId);
+        List<RefugeeFlow> flows = mModelService.getRefugeeFlowsFrom(toCountryId);
         for (RefugeeFlow flow : flows) {
             Country fromCountry = mModelService.getCountry(flow.getFromCountry().getId());
             LatLng coordinates = new LatLng(fromCountry.getLatitude(), fromCountry.getLongitude());

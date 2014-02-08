@@ -61,12 +61,12 @@ public class PersistentModelService implements ModelService {
     }
 
     @Override
-    public long create(Country country) {
+    public long createCountry(Country country) {
         return create(country);
     }
 
     @Override
-    public void update(Country country) {
+    public void updateCountry(Country country) {
         update(country);
     }
 
@@ -86,12 +86,12 @@ public class PersistentModelService implements ModelService {
     }
 
     @Override
-    public long create(Demography demography) {
+    public long createDemography(Demography demography) {
         return create(demography);
     }
 
     @Override
-    public void update(Demography demography) {
+    public void updateDemography(Demography demography) {
         update(demography);
     }
 
@@ -111,12 +111,12 @@ public class PersistentModelService implements ModelService {
     }
 
     @Override
-    public long create(RefugeeFlow refugeeFlow) {
+    public long createRefugeeFlow(RefugeeFlow refugeeFlow) {
         return create(refugeeFlow);
     }
 
     @Override
-    public void update(RefugeeFlow refugeeFlow) {
+    public void updateRefugeeFlow(RefugeeFlow refugeeFlow) {
         update(refugeeFlow);
     }
 
@@ -136,8 +136,13 @@ public class PersistentModelService implements ModelService {
     }
 
     @Override
-    public List<RefugeeFlow> getRefugeeFlows(long countryId) {
+    public List<RefugeeFlow> getRefugeeFlowsFrom(long countryId) {
         return queryAllRefugeeFlowsFrom(countryId);
+    }
+
+    @Override
+    public List<RefugeeFlow> getRefugeeFlowsTo(long countryId) {
+        return queryAllRefugeeFlowsTo(countryId);
     }
 
     /**
@@ -182,6 +187,16 @@ public class PersistentModelService implements ModelService {
         try {
             return mDbHelper.getDaoEx(RefugeeFlow.class).queryBuilder()
                     .where().eq(RefugeeFlow.Columns.FROM_COUNTRY_COLUMN, countryId)
+                    .query();
+        } catch (SQLException e) {
+            throw new android.database.SQLException(e.getMessage());
+        }
+    }
+
+    private List<RefugeeFlow> queryAllRefugeeFlowsTo(long countryId) {
+        try {
+            return mDbHelper.getDaoEx(RefugeeFlow.class).queryBuilder()
+                    .where().eq(RefugeeFlow.Columns.TO_COUNTRY_COLUMN, countryId)
                     .query();
         } catch (SQLException e) {
             throw new android.database.SQLException(e.getMessage());
