@@ -10,7 +10,7 @@ public class Country extends PersistableObject {
 
     public static final String TABLE_NAME = "countries";
 
-    static interface Columns extends PersistableObject.Columns {
+    public static interface Columns extends PersistableObject.Columns {
         public static final String NAME_COLUMN = "NAME";
         public static final String LONGITUDE_COLUMN = "LONGITUDE";
         public static final String LATITUDE_COLUMN = "LATITUDE";
