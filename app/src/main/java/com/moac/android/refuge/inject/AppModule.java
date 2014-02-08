@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.moac.android.refuge.RefugeApplication;
 import com.moac.android.refuge.activity.MainActivity;
-import com.moac.android.refuge.database.IDatabaseService;
 import com.moac.android.refuge.database.MockModelService;
 import com.moac.android.refuge.database.ModelService;
 

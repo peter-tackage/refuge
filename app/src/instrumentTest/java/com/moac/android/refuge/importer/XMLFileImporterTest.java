@@ -2,10 +2,17 @@ package com.moac.android.refuge.importer;
 
 import android.test.InstrumentationTestCase;
 
+import com.moac.android.refuge.database.MockModelService;
+import com.moac.android.refuge.database.ModelService;
+import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
+
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Created by amelysh on 08/02/14.
@@ -24,24 +31,28 @@ public class XMLFileImporterTest extends InstrumentationTestCase {
         super.tearDown();
     }
 
-    public void testParsingXML() throws IOException, FileImportException {
-        XMLFileImporter xmlFileImporter = new XMLFileImporter();
-        RefugeeFlow expectedResult = new RefugeeFlow();
-        // Algeria
-        expectedResult.setFromCountryId(1);
-        //Albania
-        expectedResult.setToCountryId(2);
-        expectedResult.setRefugeeNum(1);
-
+    public void testDOMHanlder () throws IOException, ParserConfigurationException, SAXException {
+        ModelService mockModelService = new MockModelService();
+        DOMFileImporter domParser = new DOMFileImporter(mockModelService);
         InputStream is = getInstrumentation().getContext().getResources().getAssets().open(testDataXMLFile);
-        xmlFileImporter.parseFile(is);
-        assertTrue(areRefugeeFlowsEqual(expectedResult, xmlFileImporter.refugeeFlow));
+        domParser.parse(is);
+
+        Country fromCountry = new Country();
+        fromCountry.setName("Algeria");
+        Country toCountry = new Country();
+        toCountry.setName("Albania");
+
+        RefugeeFlow expectedResult = new RefugeeFlow(fromCountry, toCountry);
+        expectedResult.setRefugeeCount(1);
+        expectedResult.setYear(2012);
+
+        assertTrue(areRefugeeFlowsEqual(expectedResult, domParser.refugeeFlow));
     }
 
     private Boolean areRefugeeFlowsEqual(RefugeeFlow a, RefugeeFlow b) {
-        return (a.getFromCountryId() == b.getFromCountryId()) &&
-                (a.getToCountryId() == b.getToCountryId()) &&
-                (a.getRefugeeNum() == b.getRefugeeNum()) &&
+        return (a.getFromCountry().getName().equals(b.getFromCountry().getName())) &&
+                (a.getToCountry().getName().equals(b.getToCountry().getName())) &&
+                (a.getRefugeeCount() == b.getRefugeeCount()) &&
                 (a.getYear() == b.getYear());
     }
 }
