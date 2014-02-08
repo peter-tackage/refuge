@@ -7,13 +7,4 @@
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
 
-    <!-- UN data xml tags -->
-    <string name="recordTag">record</string>
-    <string name="elementTag">field</string>
-    <string name="attributeTag">name</string>
-    <string name="fromCountryNameValue">Country or territory of origin</string>
-    <string name="toCountryNameValue">Country or territory of asylum or residence</string>
-    <string name="yearValue">Year</string>
-    <string name="refugeesNumValue">Refugees&lt;sup&gt;*&lt;/sup&gt;</string>
-
 </resources>

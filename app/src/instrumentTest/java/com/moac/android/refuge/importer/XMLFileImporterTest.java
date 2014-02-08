@@ -4,8 +4,12 @@ import android.test.InstrumentationTestCase;
 
 import com.moac.android.refuge.model.RefugeeFlow;
 
+import org.xml.sax.SAXException;
+
 import java.io.IOException;
 import java.io.InputStream;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Created by amelysh on 08/02/14.
@@ -24,18 +28,18 @@ public class XMLFileImporterTest extends InstrumentationTestCase {
         super.tearDown();
     }
 
-    public void testParsingXML() throws IOException, FileImportException {
-        XMLFileImporter xmlFileImporter = new XMLFileImporter();
+    public void testDOMHanlder () throws IOException, ParserConfigurationException, SAXException {
+        DOMFileImporter domParser = new DOMFileImporter();
+        InputStream is = getInstrumentation().getContext().getResources().getAssets().open(testDataXMLFile);
+        domParser.parse(is);
+
         RefugeeFlow expectedResult = new RefugeeFlow();
-        // Algeria
         expectedResult.setFromCountryId(1);
-        //Albania
         expectedResult.setToCountryId(2);
         expectedResult.setRefugeeNum(1);
+        expectedResult.setYear(2012);
 
-        InputStream is = getInstrumentation().getContext().getResources().getAssets().open(testDataXMLFile);
-        xmlFileImporter.parseFile(is);
-        assertTrue(areRefugeeFlowsEqual(expectedResult, xmlFileImporter.refugeeFlow));
+        assertTrue(areRefugeeFlowsEqual(expectedResult, domParser.refugeeFlow));
     }
 
     private Boolean areRefugeeFlowsEqual(RefugeeFlow a, RefugeeFlow b) {
