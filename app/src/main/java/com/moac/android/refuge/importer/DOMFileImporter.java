@@ -1,10 +1,6 @@
 package com.moac.android.refuge.importer;
 
-import android.util.Log;
-
-import com.moac.android.refuge.database.DatabaseHelper;
 import com.moac.android.refuge.database.ModelService;
-import com.moac.android.refuge.database.PersistentModelService;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
 

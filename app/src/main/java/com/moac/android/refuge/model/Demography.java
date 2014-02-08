@@ -8,7 +8,7 @@ public class Demography extends PersistableObject {
 
     public static final String TABLE_NAME = "demographies";
 
-    static interface Columns extends PersistableObject.Columns {
+    public static interface Columns extends PersistableObject.Columns {
         public static final String COUNTRY_COLUMN = "COUNTRY";
         public static final String YEAR_COLUMN = "YEAR";
         public static final String POPULATION_COLUMN = "POPULATION";

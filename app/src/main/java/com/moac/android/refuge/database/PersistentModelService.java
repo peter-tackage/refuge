@@ -1,20 +1,19 @@
 package com.moac.android.refuge.database;
 
-import android.database.SQLException;
+import android.util.Log;
 
 import com.j256.ormlite.dao.GenericRawResults;
-import com.j256.ormlite.stmt.DeleteBuilder;
-import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.stmt.UpdateBuilder;
-import com.j256.ormlite.stmt.SelectArg;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.Demography;
 import com.moac.android.refuge.model.PersistableObject;
 import com.moac.android.refuge.model.RefugeeFlow;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class PersistentModelService implements ModelService {
+
+    static final String TAG = PersistentModelService.class.getSimpleName();
 
     private final DatabaseHelper mDbHelper;
 
@@ -128,127 +127,64 @@ public class PersistentModelService implements ModelService {
 
     @Override
     public long getTotalRefugeeFlowTo(long countryId) {
-        return 0; //queryTotalRefugeeFlowTo(countryId);
+        return queryTotalRefugeeFlowTo(countryId);
     }
 
     @Override
     public long getTotalRefugeeFlowFrom(long countryId) {
-        return 0; //queryTotalRefugeeFlowFrom(countryId);
+        return queryTotalRefugeeFlowFrom(countryId);
     }
 
     @Override
     public List<RefugeeFlow> getRefugeeFlows(long countryId) {
-        return null; //queryAllRefugeeFlowsFrom(countryId);
+        return queryAllRefugeeFlowsFrom(countryId);
     }
-
 
     /**
      * Bespoke queries - examples
      */
+    private long queryTotalRefugeeFlowTo(long countryId) {
+        String query = "select sum(*) from " + RefugeeFlow.TABLE_NAME + " where " + RefugeeFlow.Columns.TO_COUNTRY_COLUMN + " = " + countryId;
+        Log.d(TAG, query);
 
-//    private queryTotalRefugeeFlowTo(long countryId) {
-//        GenericRawResults<String[]> rawResults = mDbHelper.getDaoEx(RefugeeFlow.class)
-//                orderDao.queryRaw(
-//                        "select count(*) from orders where account_id = 10");
-//        return mDbHelper.
-//    }
+        GenericRawResults<String[]> rawResults = null;
+        try {
+            rawResults = mDbHelper.getDaoEx(RefugeeFlow.class).queryRaw(query);
+            List<String[]> results = rawResults.getResults();
+            // the results array should have 1 value
+            String[] resultArray = results.get(0);
+            Log.d(TAG, "!!! count " + resultArray[0]);
+            return Long.parseLong(resultArray[0]);
+        } catch (java.sql.SQLException e) {
+            throw new android.database.SQLException(e.getMessage());
+        }
+    }
 
-//    private queryTotalRefugeeFlowFrom(long countryId) {
-//
-//    }
-//
-//    private queryAllRefugeeFlowsFrom(long countryId) {
-//
-//    }
-//
-//    public List<Restriction> queryAllRestrictionsForMemberId(long memberId) {
-//        try {
-//            return mDbHelper.getDaoEx(Restriction.class).queryBuilder()
-//                    .where().eq(Restriction.Columns.MEMBER_ID_COLUMN, memberId)
-//                    .query();
-//        } catch(java.sql.SQLException e) {
-//            throw new SQLException(e.getMessage());
-//        }
-//    }
-//
-//    public boolean queryIsRestricted(long fromMemberId, long toMemberId) {
-//        try {
-//            Restriction restriction = mDbHelper.getDaoEx(Restriction.class).queryBuilder()
-//                    .where().eq(Restriction.Columns.MEMBER_ID_COLUMN, fromMemberId)
-//                    .and().eq(Restriction.Columns.OTHER_MEMBER_ID_COLUMN, toMemberId)
-//                    .queryForFirst();
-//            return restriction != null;
-//        } catch(java.sql.SQLException e) {
-//            throw new SQLException(e.getMessage());
-//        }
-//    }
-//
-//    public List<Assignment> queryAllAssignmentsForGroup(long groupId) {
-//        try {
-//            QueryBuilder<Member, Long> groupMembersQuery =
-//                    mDbHelper.getDaoEx(Member.class).queryBuilder();
-//            groupMembersQuery.selectColumns(Member.Columns._ID).where().eq(Member.Columns.GROUP_ID_COLUMN, groupId);
-//
-//            return mDbHelper.getDaoEx(Assignment.class).queryBuilder()
-//                    .where().in(Assignment.Columns.GIVER_MEMBER_ID_COLUMN, groupMembersQuery)
-//                    .query();
-//        } catch(java.sql.SQLException e) {
-//            throw new SQLException(e.getMessage());
-//        }
-//    }
-//
-//    public boolean queryHasAssignmentsForGroup(long groupId) {
-//        try {
-//            QueryBuilder<Member, Long> groupMembersQuery =
-//                    mDbHelper.getDaoEx(Member.class).queryBuilder();
-//            groupMembersQuery.selectColumns(Member.Columns._ID).where().eq(Member.Columns.GROUP_ID_COLUMN, groupId);
-//
-//            return mDbHelper.getDaoEx(Assignment.class).queryBuilder()
-//                    .where().in(Assignment.Columns.GIVER_MEMBER_ID_COLUMN, groupMembersQuery)
-//                    .queryForFirst() != null;
-//        } catch(java.sql.SQLException e) {
-//            throw new SQLException(e.getMessage());
-//        }
-//    }
-//
-//    public Assignment queryAssignmentForMember(long _memberId) {
-//        try {
-//            QueryBuilder<Assignment, Long> assignmentQuery =
-//                    mDbHelper.getDaoEx(Assignment.class).queryBuilder();
-//
-//            assignmentQuery.where().eq(Assignment.Columns.GIVER_MEMBER_ID_COLUMN, _memberId);
-//            return assignmentQuery.queryForFirst();
-//        } catch(java.sql.SQLException e) {
-//            throw new SQLException(e.getMessage());
-//        }
-//    }
-//
-//    public List<Member> queryAllMembersForGroup(long groupId) {
-//        try {
-//            return mDbHelper.getDaoEx(Member.class).queryBuilder()
-//                    .where().eq(Member.Columns.GROUP_ID_COLUMN, groupId)
-//                    .query();
-//        } catch(java.sql.SQLException e) {
-//            throw new SQLException(e.getMessage());
-//        }
-//    }
-//
-//    public List<Member> queryAllMembersForGroupExcept(long groupId, long exceptMemberId) {
-//        try {
-//            return mDbHelper.getDaoEx(Member.class).queryBuilder()
-//                    .where().eq(Member.Columns.GROUP_ID_COLUMN, groupId)
-//                    .and().ne(Member.Columns._ID, exceptMemberId)
-//                    .query();
-//        } catch(java.sql.SQLException e) {
-//            throw new SQLException(e.getMessage());
-//        }
-//    }
-//
-//    public Member queryMemberWithNameForGroup(long groupId, String name) {
-//        try {
-//            // Use SelectArg to ensure values are properly escaped
-//
-//
-//        }
-//    }
+    private long queryTotalRefugeeFlowFrom(long countryId) {
+        String query = "select sum(*) from " + RefugeeFlow.TABLE_NAME + " where " + RefugeeFlow.Columns.FROM_COUNTRY_COLUMN + " = " + countryId;
+        Log.d(TAG, query);
+
+        GenericRawResults<String[]> rawResults = null;
+        try {
+            rawResults = mDbHelper.getDaoEx(RefugeeFlow.class).queryRaw(query);
+
+            List<String[]> results = rawResults.getResults();
+            // the results array should have 1 value
+            String[] resultArray = results.get(0);
+            Log.d(TAG, "!!! count " + resultArray[0]);
+            return Long.parseLong(resultArray[0]);
+        } catch (java.sql.SQLException e) {
+            throw new android.database.SQLException(e.getMessage());
+        }
+    }
+
+    private List<RefugeeFlow> queryAllRefugeeFlowsFrom(long countryId) {
+        try {
+            return mDbHelper.getDaoEx(RefugeeFlow.class).queryBuilder()
+                    .where().eq(RefugeeFlow.Columns.FROM_COUNTRY_COLUMN, countryId)
+                    .query();
+        } catch (SQLException e) {
+            throw new android.database.SQLException(e.getMessage());
+        }
+    }
 }
