@@ -4,27 +4,27 @@ import android.app.Activity;
 ;
 import android.app.ActionBar;
 import android.app.FragmentManager;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.SearchView;
 
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.moac.android.refuge.RefugeApplication;
-import com.moac.android.refuge.database.DatabaseService;
+import com.moac.android.refuge.database.ModelService;
 import com.moac.android.refuge.fragment.NavigationDrawerFragment;
 import com.moac.android.refuge.R;
+import com.moac.android.refuge.model.Country;
+import com.moac.android.refuge.model.RefugeeFlow;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -39,9 +39,12 @@ public class MainActivity extends Activity
     private NavigationDrawerFragment mNavigationDrawerFragment;
 
     @Inject
-    DatabaseService mDatabase;
+    ModelService mModelService;
     private GoogleMap mMap;
     private MapFragment mMapFragment;
+    private Handler mHandler;
+    private SearchView mSearchView;
+    private static final long MAX_RADIUS = 2000000; // 2000 kms
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,18 +64,68 @@ public class MainActivity extends Activity
         // Get a handle to the Map Fragment
         mMap = ((MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map)).getMap();
-        LatLng sydney = new LatLng(-33.867, 151.206);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 13));
-        CircleOptions circleOptions = new CircleOptions()
-                .center(sydney)
-                .radius(100000)
-        .fillColor(0xAA4AB498)
-                .strokeWidth(0); // In meters
 
-        // Get back the mutable Circle
-        Circle circle = mMap.addCircle(circleOptions);
+        // Determine the global maximum to normalize the visualization
+        drawCountries(new ArrayList<Country>());
 
     }
+
+    private void drawCountries(List<Country> countries) {
+        long maxRefugeeFlowTo = 0;
+        for (Country country : countries) {
+            maxRefugeeFlowTo = Math.max(maxRefugeeFlowTo,
+                    mModelService.getTotalRefugeeFlowTo(country.getId()));
+        }
+
+        // Maximum radius is defined
+        for (Country country : countries) {
+            drawFromCircles(country.getId(), 0xAA4AB498, maxRefugeeFlowTo);
+        }
+    }
+
+    private void drawFromCircles(long toCountryId, int toCountryColor, long maxFlow) {
+        List<RefugeeFlow> flows = mModelService.getRefugeeFlows(toCountryId);
+        for (RefugeeFlow flow : flows) {
+            Country fromCountry = mModelService.getCountry(flow.getFromCountry().getId());
+            LatLng coordinates = new LatLng(fromCountry.getLatitude(), fromCountry.getLongitude());
+            renderOutgoingFlowCircle(mMap, coordinates, maxFlow, flow.getRefugeeCount(), toCountryColor);
+        }
+    }
+
+    public static Circle renderOutgoingFlowCircle(GoogleMap map,
+                                                  LatLng coordinates,
+                                                  long maxSelectedCount,
+                                                  long count,
+                                                  int color) {
+
+        long radius = (count / maxSelectedCount) * MAX_RADIUS;
+        CircleOptions circleOptions = new CircleOptions()
+                .center(coordinates)
+                .radius(radius)
+                .fillColor(color)
+                .strokeWidth(0); // In meters
+
+        return map.addCircle(circleOptions);
+    }
+
+//    private class AnimateRunnable implements Runnable {
+//
+//        private final Circle mCircle;
+//
+//        public AnimateRunnable(Circle c) {
+//            mCircle = c;
+//        }
+//        @Override
+//        public void run() {
+//
+//          //  mCircle.setRadius(mCircle.getRadius() - 10000);
+//            LatLng ll = mCircle.getCenter();
+//            mCircle.setCenter(new LatLng(ll.latitude, ll.longitude + 0.5));
+//            mHandler.postDelayed(this, 100);
+////            mCircle.setFillColor(mCircle.getFillColor() + 1);
+////                    mHandler.postDelayed(this, 1);
+//        }
+//    }
 
     @Override
     protected void onStart() {
@@ -107,6 +160,23 @@ public class MainActivity extends Activity
             restoreActionBar();
             return true;
         }
+//        // Inflate the options menu from XML
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.options_menu, menu);
+//
+//        // Get the SearchView and set the searchable configuration
+//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        mSearchView = (SearchView) menu.findItem(R.id.menu_item_search).getActionView();
+//        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+//        mSearchView.setIconifiedByDefault(true);
+//        mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override public void onFocusChange(View v, boolean hasFocus) {
+//                if(v == mSearchView && !hasFocus) mSearchView.setIconified(true);
+//            }
+//        });
+//        // Note: I don't register callbacks to invoke the search query - use the Intents instead.
+//
+//        return true;
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -121,6 +191,7 @@ public class MainActivity extends Activity
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     /**
      *

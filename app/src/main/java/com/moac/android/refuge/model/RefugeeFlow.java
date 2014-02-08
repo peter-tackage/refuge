@@ -1,76 +1,44 @@
 package com.moac.android.refuge.model;
 
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
-/**
- * Created by amelysh on 08/02/14.
- */
+@DatabaseTable(tableName = RefugeeFlow.TABLE_NAME)
 public class RefugeeFlow extends PersistableObject {
 
     public static final String TABLE_NAME =  "refugeeFlows";
 
-    public static interface Columns extends PersistableObject.Columns {
-        public static final String FROM_COUNTRY_ID_COLUMN = "FROM_COUNTRY_ID";
-        public static final String TO_COUNTRY_ID_COLUMN = "TO_COUNTRY_ID";
+    static interface Columns extends PersistableObject.Columns {
+        public static final String FROM_COUNTRY_COLUMN = "FROM_COUNTRY";
+        public static final String TO_COUNTRY_COLUMN = "TO_COUNTRY";
         public static final String YEAR_COLUMN = "YEAR";
-        public static final String REFUGEE_NUM_COLUMN = "REFUGEE_NUM";
+        public static final String REFUGEE_COUNT_COLUMN = "REFUGEE_COUNT";
     }
 
-    @DatabaseField(columnName = Columns.FROM_COUNTRY_ID_COLUMN, unique = false, canBeNull = false)
-    private int mFromCountryId;
+    public RefugeeFlow(Country fromCountry, Country toCountry) {
+        mFromCountry =fromCountry;
+        mToCountry = toCountry;
+    }
 
-    public int getFromCountryId() { return mFromCountryId; }
-    public void setFromCountryId(int _fromCountryId) { mFromCountryId = _fromCountryId; }
+    @DatabaseField(columnName = Columns.FROM_COUNTRY_COLUMN, canBeNull = false)
+    private Country mFromCountry;
 
-    @DatabaseField(columnName = Columns.TO_COUNTRY_ID_COLUMN, unique = false, canBeNull = false)
-    private int mToCountryId;
+    @DatabaseField(columnName = Columns.TO_COUNTRY_COLUMN, canBeNull = false)
+    private Country mToCountry;
 
-    public int getToCountryId() { return mToCountryId; }
-    public void setToCountryId(int _toCountryId) { mToCountryId = _toCountryId; }
-
-    @DatabaseField(columnName = Columns.YEAR_COLUMN, unique = false, canBeNull = false)
+    @DatabaseField(columnName = Columns.YEAR_COLUMN, canBeNull = false)
     private int mYear;
+
+    @DatabaseField(columnName = Columns.REFUGEE_COUNT_COLUMN, canBeNull = false)
+    private long mRefugeeCount;
+
+    public Country getFromCountry() { return mFromCountry; }
+    public Country getToCountryId() { return mToCountry; }
 
     public int getYear() { return mYear; }
     public void setYear(int _year) { mYear = _year; }
 
-    @DatabaseField(columnName = Columns.REFUGEE_NUM_COLUMN, unique = false, canBeNull = false)
-    private double mRefugeeNum;
+    public long getRefugeeCount() { return mRefugeeCount; }
+    public void setRefugeeCount(long _refugeCount) { mRefugeeCount = _refugeCount; }
 
-    public double getRefugeeNum() { return mRefugeeNum; }
-    public void setRefugeeNum(double _refugeeNum) { mRefugeeNum = _refugeeNum; }
-
-    public static class RefugeeFlowBuilder {
-        RefugeeFlow mRefugeeFlow;
-
-        public RefugeeFlowBuilder() {
-            mRefugeeFlow = new RefugeeFlow();
-            mRefugeeFlow.setFromCountryId(-1);
-            mRefugeeFlow.setToCountryId(-1);
-            mRefugeeFlow.setYear(-1);
-            mRefugeeFlow.setRefugeeNum(-1);
-        }
-
-        public RefugeeFlowBuilder withFromCountryId(int fromCountryId) {
-            mRefugeeFlow.setFromCountryId(fromCountryId);
-            return this;
-        }
-
-        public RefugeeFlowBuilder withToCountryId(int toCountryId) {
-            mRefugeeFlow.setToCountryId(toCountryId);
-            return this;
-        }
-
-        public RefugeeFlowBuilder withYear(int year) {
-            mRefugeeFlow.setYear(year);
-            return this;
-        }
-
-        public RefugeeFlowBuilder withRefugeeNum(double refugeeNum) {
-            mRefugeeFlow.setRefugeeNum(refugeeNum);
-            return this;
-        }
-
-        public RefugeeFlow build() { return mRefugeeFlow; }
-    }
 }
