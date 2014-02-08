@@ -1,11 +1,15 @@
 package com.moac.android.refuge.model;
 
+import android.util.Log;
+
 import com.j256.ormlite.field.DatabaseField;
 
 /**
  * Created by amelysh on 08/02/14.
  */
 public class RefugeeFlow extends PersistableObject {
+
+    public static final String TAG = RefugeeFlow.class.getSimpleName();
 
     public static final String TABLE_NAME =  "refugeeFlows";
 
@@ -35,10 +39,14 @@ public class RefugeeFlow extends PersistableObject {
     public void setYear(int _year) { mYear = _year; }
 
     @DatabaseField(columnName = Columns.REFUGEE_NUM_COLUMN, unique = false, canBeNull = false)
-    private double mRefugeeNum;
+    private long mRefugeeNum;
 
-    public double getRefugeeNum() { return mRefugeeNum; }
-    public void setRefugeeNum(double _refugeeNum) { mRefugeeNum = _refugeeNum; }
+    public long getRefugeeNum() { return mRefugeeNum; }
+    public void setRefugeeNum(long _refugeeNum) { mRefugeeNum = _refugeeNum; }
+
+    public String getStringDescription() {
+        return "Year: " + mYear + " FromCountryId: " + mFromCountryId + " ToCountryId: " + mToCountryId + " RefugeesNum: " + mRefugeeNum;
+    }
 
     public static class RefugeeFlowBuilder {
         RefugeeFlow mRefugeeFlow;
@@ -66,7 +74,7 @@ public class RefugeeFlow extends PersistableObject {
             return this;
         }
 
-        public RefugeeFlowBuilder withRefugeeNum(double refugeeNum) {
+        public RefugeeFlowBuilder withRefugeeNum(long refugeeNum) {
             mRefugeeFlow.setRefugeeNum(refugeeNum);
             return this;
         }

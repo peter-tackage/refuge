@@ -32,16 +32,16 @@ public class Demography extends PersistableObject {
     public void setYear(int _year) { mYear = _year; }
 
     @DatabaseField(columnName = Columns.POPULATION_COLUMN, unique = false, canBeNull = false)
-    private double mPopulation;
+    private long mPopulation;
 
-    public double getPopulation() { return mPopulation; }
-    public void setPopulation(double _population) { mPopulation = _population; }
+    public long getPopulation() { return mPopulation; }
+    public void setPopulation(long _population) { mPopulation = _population; }
 
     @DatabaseField(columnName = Columns.MIGRATION_COLUMN, unique = false, canBeNull = false)
-    private double mMigration;
+    private long mMigration;
 
-    public double getMigration() { return mMigration; }
-    public void setMigration(double _migration) { mMigration = _migration; }
+    public long getMigration() { return mMigration; }
+    public void setMigration(long _migration) { mMigration = _migration; }
 
 
     public static class DemographyBuilder {
@@ -65,12 +65,12 @@ public class Demography extends PersistableObject {
             return this;
         }
 
-        public DemographyBuilder withPopuplation(double population) {
+        public DemographyBuilder withPopuplation(long population) {
             mDemography.setPopulation(population);
             return this;
         }
 
-        public DemographyBuilder withMigration(double migration) {
+        public DemographyBuilder withMigration(long migration) {
             mDemography.setMigration(migration);
             return this;
         }
