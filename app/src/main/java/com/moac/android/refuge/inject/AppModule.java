@@ -4,8 +4,8 @@ import android.util.Log;
 
 import com.moac.android.refuge.RefugeApplication;
 import com.moac.android.refuge.activity.MainActivity;
-import com.moac.android.refuge.database.DatabaseHelper;
-import com.moac.android.refuge.database.DatabaseService;
+import com.moac.android.refuge.database.MockModelService;
+import com.moac.android.refuge.database.ModelService;
 
 import javax.inject.Singleton;
 
@@ -23,10 +23,11 @@ public class AppModule {
 
     @Provides
     @Singleton
-    DatabaseService provideDatabase() {
+    ModelService provideDatabase() {
         Log.i(TAG, "Providing database");
-        DatabaseHelper databaseHelper = new DatabaseHelper(mApplication);
-        return new DatabaseService(databaseHelper);
+//        DatabaseHelper databaseHelper = new DatabaseHelper(mApplication);
+//        return new PersistentModelService(databaseHelper);
+        return new MockModelService();
     }
 }
 
