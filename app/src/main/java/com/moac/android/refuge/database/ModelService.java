@@ -54,6 +54,8 @@ public interface ModelService {
 
     long getTotalRefugeeFlowFrom(long countryId);
 
-    List<RefugeeFlow> getRefugeeFlows(long countryId);
+    List<RefugeeFlow> getRefugeeFlowsFrom(long countryId);
+
+    List<RefugeeFlow> getRefugeeFlowsTo(long countryId);
 
 }

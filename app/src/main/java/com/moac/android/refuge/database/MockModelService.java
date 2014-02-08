@@ -106,7 +106,7 @@ public class MockModelService implements ModelService{
     }
 
     @Override
-    public List<RefugeeFlow> getRefugeeFlows(long countryId) {
+    public List<RefugeeFlow> getRefugeeFlowsFrom(long countryId) {
 //        List<RefugeeFlow> flows = new ArrayList<RefugeeFlow>();
 //        RefugeeFlow af = new RefugeeFlow();
 //        af.setRefugeeCount(230);
@@ -123,6 +123,11 @@ public class MockModelService implements ModelService{
 //        flows.add(iq);
 //
 //        return flows;
+        return null;
+    }
+
+    @Override
+    public List<RefugeeFlow> getRefugeeFlowsTo(long countryId) {
         return null;
     }
 }
