@@ -8,7 +8,7 @@ public class RefugeeFlow extends PersistableObject {
 
     public static final String TABLE_NAME =  "refugeeFlows";
 
-    static interface Columns extends PersistableObject.Columns {
+    public static interface Columns extends PersistableObject.Columns {
         public static final String FROM_COUNTRY_COLUMN = "FROM_COUNTRY";
         public static final String TO_COUNTRY_COLUMN = "TO_COUNTRY";
         public static final String YEAR_COLUMN = "YEAR";
