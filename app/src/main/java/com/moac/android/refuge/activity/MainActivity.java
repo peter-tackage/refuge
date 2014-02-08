@@ -65,9 +65,41 @@ public class MainActivity extends Activity
         mMap = ((MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map)).getMap();
 
+
         // Determine the global maximum to normalize the visualization
         drawCountries(new ArrayList<Country>());
 
+    }
+
+    private void insertTestData() {
+        List<Country> countryList = new ArrayList<Country>();
+
+        Country au = new Country("Australia");
+        au.setLatLng(-45, 90);
+        countryList.add(au);
+        long auId = mModelService.create(au);
+
+        Country af = new Country("Afghanistan");
+        af.setLatLng(45, 90);
+        countryList.add(af);
+        long afId = mModelService.create(af);
+
+
+        Country iq = new Country("Iraq");
+        iq.setLatLng(-45, -90);
+        countryList.add(iq);
+        long iqId = mModelService.create(iq);
+
+
+        RefugeeFlow af2au = new RefugeeFlow(af, au);
+        af2au.setRefugeeCount(1000);
+        af2au.setYear(2012);
+        mModelService.create(af2au);
+
+        RefugeeFlow iq2au = new RefugeeFlow(iq, au);
+        iq2au.setRefugeeCount(750);
+        iq2au.setYear(2012);
+        mModelService.create(iq2au);
     }
 
     private void drawCountries(List<Country> countries) {
