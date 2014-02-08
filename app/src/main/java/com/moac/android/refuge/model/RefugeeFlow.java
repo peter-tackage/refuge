@@ -36,7 +36,7 @@ public class RefugeeFlow extends PersistableObject {
     private long mRefugeeCount;
 
     public Country getFromCountry() { return mFromCountry; }
-    public Country getToCountryId() { return mToCountry; }
+    public Country getToCountry() { return mToCountry; }
 
     public int getYear() { return mYear; }
     public void setYear(int _year) { mYear = _year; }
