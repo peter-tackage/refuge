@@ -23,12 +23,12 @@ public class MockModelService implements ModelService{
     }
 
     @Override
-    public long create(Country country) {
+    public long createCountry(Country country) {
         return 0;
     }
 
     @Override
-    public void update(Country country) {
+    public void updateCountry(Country country) {
 
     }
 
@@ -52,12 +52,12 @@ public class MockModelService implements ModelService{
     }
 
     @Override
-    public long create(Demography demography) {
+    public long createDemography(Demography demography) {
         return 0;
     }
 
     @Override
-    public void update(Demography demography) {
+    public void updateDemography(Demography demography) {
 
     }
 
@@ -81,12 +81,12 @@ public class MockModelService implements ModelService{
     }
 
     @Override
-    public long create(RefugeeFlow refugeeFlow) {
+    public long createRefugeeFlow(RefugeeFlow refugeeFlow) {
         return 0;
     }
 
     @Override
-    public void update(RefugeeFlow refugeeFlow) {
+    public void updateRefugeeFlow(RefugeeFlow refugeeFlow) {
 
     }
 
