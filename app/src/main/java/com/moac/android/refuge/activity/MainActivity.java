@@ -12,12 +12,15 @@ import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.moac.android.refuge.RefugeApplication;
 import com.moac.android.refuge.database.DatabaseService;
 import com.moac.android.refuge.fragment.NavigationDrawerFragment;
@@ -29,17 +32,11 @@ public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    public static final String MAP_FRAGMENT_TAG = "MAP";
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
-
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
-    private CharSequence mTitle;
 
     @Inject
     DatabaseService mDatabase;
@@ -49,42 +46,37 @@ public class MainActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Inject database
-        RefugeApplication.from(this).inject(this);
-
-        try {
-            MapsInitializer.initialize(this);
-        } catch (GooglePlayServicesNotAvailableException e) {
-            Log.e(TAG, "Failed to initialise Google Maps", e);
-        }
         setContentView(R.layout.activity_main);
 
-        mMapFragment = (MapFragment) getFragmentManager().findFragmentByTag(MAP_FRAGMENT_TAG);
-        if (mMapFragment == null) {
-            mMapFragment = MapFragment.newInstance();
-            getFragmentManager().beginTransaction().replace(R.id.container, mMapFragment, MAP_FRAGMENT_TAG).commit();
-        }
+        RefugeApplication.from(this).inject(this);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        // Get a handle to the Map Fragment
+        mMap = ((MapFragment) getFragmentManager()
+                .findFragmentById(R.id.map)).getMap();
+        LatLng sydney = new LatLng(-33.867, 151.206);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 13));
+        CircleOptions circleOptions = new CircleOptions()
+                .center(sydney)
+                .radius(100000)
+        .fillColor(0xAA4AB498)
+                .strokeWidth(0); // In meters
+
+        // Get back the mutable Circle
+        Circle circle = mMap.addCircle(circleOptions);
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mMap = mMapFragment.getMap();
-        Circle circle = mMap.addCircle(new CircleOptions()
-                .center(new LatLng(-33.87365, 151.20689))
-                .radius(10000)
-                .strokeColor(Color.RED)
-                .fillColor(Color.BLUE));
     }
 
     @Override
@@ -94,27 +86,14 @@ public class MainActivity extends Activity
         fragmentManager.beginTransaction()
                 .replace(R.id.container, MapFragment.newInstance())
                 .commit();
-    }
-
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
-        }
+        // FIXME If we do this, then we should save the reference to the Fragment/map
     }
 
     public void restoreActionBar() {
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
+        actionBar.setTitle(R.string.app_name);
     }
 
 
