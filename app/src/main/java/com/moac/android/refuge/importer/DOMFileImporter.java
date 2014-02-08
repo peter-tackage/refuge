@@ -1,10 +1,6 @@
 package com.moac.android.refuge.importer;
 
-import android.util.Log;
-
-import com.moac.android.refuge.database.DatabaseHelper;
 import com.moac.android.refuge.database.ModelService;
-import com.moac.android.refuge.database.PersistentModelService;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
 
@@ -34,15 +30,16 @@ public class DOMFileImporter {
     static final String YEAR_TAG = "Year";
     static final String REFUGEE_NUM_TAG = "Refugees<sup>*</sup>";
 
-    RefugeeFlow refugeeFlow;
+    private RefugeeFlow refugeeFlow;
     private ModelService mModelService;
 
     public DOMFileImporter(ModelService modelService) {
         mModelService = modelService;
     }
 
-    public void parse(InputStream inputStream) throws ParserConfigurationException, IOException, SAXException {
+    public void parse(InputStream inputStream) throws FileImportException {
 
+        try {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.parse(inputStream);
@@ -73,13 +70,13 @@ public class DOMFileImporter {
                             String content = fieldNode.getLastChild().getTextContent().trim();
                             fromCountry = new Country();
                             fromCountry.setName(content);
-                            mModelService.create(fromCountry);
+                            mModelService.createCountry(fromCountry);
                         }
                         else if (fieldNameValue.equals(TO_COUNTRY_TAG)) {
                             String content = fieldNode.getLastChild().getTextContent().trim();
                             toCountry = new Country();
                             toCountry.setName(content);
-                            mModelService.create(toCountry);
+                            mModelService.createCountry(toCountry);
                         }
                         else if (fieldNameValue.equals(YEAR_TAG)) {
                             String content = fieldNode.getLastChild().getTextContent().trim();
@@ -95,8 +92,15 @@ public class DOMFileImporter {
                 refugeeFlow = new RefugeeFlow(fromCountry, toCountry);
                 refugeeFlow.setYear(year);
                 refugeeFlow.setRefugeeCount(refugeeNum);
-                mModelService.create(refugeeFlow);
+                mModelService.createRefugeeFlow(refugeeFlow);
             }
+        }
+        } catch (ParserConfigurationException e) {
+            throw new FileImportException(e);
+        } catch (SAXException e) {
+            throw new FileImportException(e);
+        } catch (IOException e) {
+            throw new FileImportException(e);
         }
     }
 }
