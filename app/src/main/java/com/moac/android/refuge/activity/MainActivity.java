@@ -6,6 +6,7 @@ import android.app.ActionBar;
 import android.app.FragmentManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
@@ -20,9 +21,13 @@ import com.moac.android.refuge.RefugeApplication;
 import com.moac.android.refuge.database.ModelService;
 import com.moac.android.refuge.fragment.NavigationDrawerFragment;
 import com.moac.android.refuge.R;
+import com.moac.android.refuge.importer.DOMFileImporter;
+import com.moac.android.refuge.importer.LoadDataRunnable;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
+import com.moac.android.refuge.util.DoOnce;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +37,7 @@ public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String LOAD_DATA_TASK_TAG = "LOAD_DATA_TASK";
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -66,41 +72,55 @@ public class MainActivity extends Activity
                 .findFragmentById(R.id.map)).getMap();
 
 
-        // Determine the global maximum to normalize the visualization
-        drawCountries(new ArrayList<Country>());
+        String assetFile = "smalltestsample.xml";
+        try {
+            boolean attemptedToLoad = DoOnce.doOnce(this, LOAD_DATA_TASK_TAG, new LoadDataRunnable(new DOMFileImporter(mModelService), getAssets().open(assetFile)));
+            Log.i(TAG, "Attempted to load data: " + attemptedToLoad);
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to open the data file: " + assetFile, e);
+            finish();
+        }
 
+        List<Country> allCountries = mModelService.getAllCountries();
+        Log.i(TAG, "We loaded these countries: " + allCountries);
+        for(Country c : allCountries) {
+            Log.i(TAG, "Country: " + c.getName());
+            List<RefugeeFlow> flows = mModelService.getRefugeeFlows(c.getId());
+            Log.i(TAG, "Country has flows into: " + c.getName());
+
+        }
+      //  drawCountries(allCountries);
     }
 
-    private void insertTestData() {
-        List<Country> countryList = new ArrayList<Country>();
-
-        Country au = new Country("Australia");
-        au.setLatLng(-45, 90);
-        countryList.add(au);
-        long auId = mModelService.create(au);
-
-        Country af = new Country("Afghanistan");
-        af.setLatLng(45, 90);
-        countryList.add(af);
-        long afId = mModelService.create(af);
-
-
-        Country iq = new Country("Iraq");
-        iq.setLatLng(-45, -90);
-        countryList.add(iq);
-        long iqId = mModelService.create(iq);
-
-
-        RefugeeFlow af2au = new RefugeeFlow(af, au);
-        af2au.setRefugeeCount(1000);
-        af2au.setYear(2012);
-        mModelService.create(af2au);
-
-        RefugeeFlow iq2au = new RefugeeFlow(iq, au);
-        iq2au.setRefugeeCount(750);
-        iq2au.setYear(2012);
-        mModelService.create(iq2au);
-    }
+//    private void insertTestData() {
+//        List<Country> countryList = new ArrayList<Country>();
+//
+//        Country au = new Country("Australia");
+//        au.setLatLng(-45, 90);
+//        countryList.add(au);
+//        long auId = mModelService.createCountry(au);
+//
+//        Country af = new Country("Afghanistan");
+//        af.setLatLng(45, 90);
+//        countryList.add(af);
+//        long afId = mModelService.createCountry(af);
+//
+//
+//        Country iq = new Country("Iraq");
+//        iq.setLatLng(-45, -90);
+//        countryList.add(iq);
+//        long iqId = mModelService.createCountry(iq);
+//
+//        RefugeeFlow af2au = new RefugeeFlow(af, au);
+//        af2au.setRefugeeCount(1000);
+//        af2au.setYear(2012);
+//        mModelService.createCountry(af2au);
+//
+//        RefugeeFlow iq2au = new RefugeeFlow(iq, au);
+//        iq2au.setRefugeeCount(750);
+//        iq2au.setYear(2012);
+//        mModelService.createCountry(iq2au);
+//    }
 
     private void drawCountries(List<Country> countries) {
         long maxRefugeeFlowTo = 0;
@@ -159,14 +179,11 @@ public class MainActivity extends Activity
 //        }
 //    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
+
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
+        // updateCountry the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container, MapFragment.newInstance())

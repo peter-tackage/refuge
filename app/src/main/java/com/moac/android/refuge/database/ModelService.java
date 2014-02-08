@@ -16,9 +16,9 @@ public interface ModelService {
 
     Country getCountry(long id);
 
-    long create(Country country);
+    long createCountry(Country country);
 
-    void update(Country country);
+    void updateCountry(Country country);
 
     void deleteCountry(long id);
 
@@ -30,9 +30,9 @@ public interface ModelService {
 
     Demography getDemography(long id);
 
-    long create(Demography demography);
+    long createDemography(Demography demography);
 
-    void update(Demography demography);
+    void updateDemography(Demography demography);
 
     void deleteDemography(long id);
 
@@ -44,9 +44,9 @@ public interface ModelService {
 
     RefugeeFlow getRefugeeFlow(long id);
 
-    long create(RefugeeFlow refugeeFlow);
+    long createRefugeeFlow(RefugeeFlow refugeeFlow);
 
-    void update(RefugeeFlow refugeeFlow);
+    void updateRefugeeFlow(RefugeeFlow refugeeFlow);
 
     void deleteRefugeeFlow(long id);
 
