@@ -1,54 +1,151 @@
 package com.moac.android.refuge.database;
 
 import android.database.SQLException;
+
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
 import com.j256.ormlite.stmt.SelectArg;
+import com.moac.android.refuge.model.Country;
+import com.moac.android.refuge.model.Demography;
 import com.moac.android.refuge.model.PersistableObject;
+import com.moac.android.refuge.model.RefugeeFlow;
 
 import java.util.List;
 
-public class DatabaseService {
+public class PersistentModelService implements ModelService {
 
     private final DatabaseHelper mDbHelper;
 
-    public DatabaseService(DatabaseHelper helper) {
+    public PersistentModelService(DatabaseHelper helper) {
         mDbHelper = helper;
     }
 
-    public <T extends PersistableObject> List<T> queryAll(Class<T> objClass) {
+    private <T extends PersistableObject> List<T> queryAll(Class<T> objClass) {
         return mDbHelper.queryAll(objClass);
     }
 
-    public <T extends PersistableObject> T queryById(long id, Class<T> objClass) {
+    private <T extends PersistableObject> T queryById(long id, Class<T> objClass) {
         return mDbHelper.queryById(id, objClass);
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends PersistableObject> T queryById(T obj) {
+    private <T extends PersistableObject> T queryById(T obj) {
         return (T) mDbHelper.queryById(obj.getId(), obj.getClass());
     }
 
-    public <T extends PersistableObject> long create(T obj) {
+    private <T extends PersistableObject> long create(T obj) {
         return mDbHelper.create(obj, obj.getClass());
     }
 
-    public <T extends PersistableObject> void update(T obj) {
+    private <T extends PersistableObject> void update(T obj) {
         mDbHelper.update(obj, obj.getClass());
     }
 
-    public <T extends PersistableObject> void delete(T obj) {
+    private <T extends PersistableObject> void delete(T obj) {
         mDbHelper.deleteById(obj.getId(), obj.getClass());
     }
 
-    public <T extends PersistableObject> void delete(long id, Class<T> objClass) {
+    private <T extends PersistableObject> void delete(long id, Class<T> objClass) {
         mDbHelper.deleteById(id, objClass);
     }
+
+    @Override
+    public List<Country> getAllCountries() {
+        return queryAll(Country.class);
+    }
+
+    @Override
+    public Country getCountry(long id) {
+        return null;
+    }
+
+    @Override
+    public long create(Country country) {
+        return 0;
+    }
+
+    @Override
+    public void update(Country country) {
+
+    }
+
+    @Override
+    public void deleteCountry(long id) {
+
+    }
+
+    @Override
+    public List<Demography> getAllDemographics() {
+        return null;
+    }
+
+    @Override
+    public Demography getDemography(long id) {
+        return null;
+    }
+
+    @Override
+    public long create(Demography demography) {
+        return 0;
+    }
+
+    @Override
+    public void update(Demography demography) {
+
+    }
+
+    @Override
+    public void deleteDemography(long id) {
+
+    }
+
+    @Override
+    public List<RefugeeFlow> getAllRefugeeFlows() {
+        return null;
+    }
+
+    @Override
+    public RefugeeFlow getRefugeeFlow(long id) {
+        return null;
+    }
+
+    @Override
+    public long create(RefugeeFlow refugeeFlow) {
+        return 0;
+    }
+
+    @Override
+    public void update(RefugeeFlow refugeeFlow) {
+
+    }
+
+    @Override
+    public void deleteRefugeeFlow(long id) {
+
+    }
+
+    @Override
+    public long getTotalRefugeeFlowTo(long countryId) {
+        return 0;
+    }
+
+    @Override
+    public long getTotalRefugeeFlowFrom(long countryId) {
+        return 0;
+    }
+
+    @Override
+    public List<RefugeeFlow> getRefugeeFlows(long countryId) {
+        return null;
+    }
+
 
     /**
      * Bespoke queries - examples
      */
+
+
 //
 //    public List<Restriction> queryAllRestrictionsForMemberId(long memberId) {
 //        try {
