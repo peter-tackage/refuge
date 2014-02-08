@@ -10,7 +10,10 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTableConfig;
 import com.j256.ormlite.table.TableUtils;
+import com.moac.android.refuge.model.Country;
+import com.moac.android.refuge.model.Demography;
 import com.moac.android.refuge.model.PersistableObject;
+import com.moac.android.refuge.model.RefugeeFlow;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,8 +23,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     private static final String TAG = DatabaseHelper.class.getSimpleName();
 
-    private static final String DATABASE_NAME = "opensecretsanta.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final String DATABASE_NAME = "refuge.db";
+    private static final int DATABASE_VERSION = 1;
 
     protected Class[] PERSISTABLE_OBJECTS;
 
@@ -34,7 +37,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     // FIXME Add the classes into the PERSISTABLE_OBJECTS
     public DatabaseHelper(Context ctx) {
         super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
-        PERSISTABLE_OBJECTS = new Class[]{};
+        PERSISTABLE_OBJECTS = new Class[]{Country.class, Demography.class, RefugeeFlow.class};
     }
 
     // Testing only?
