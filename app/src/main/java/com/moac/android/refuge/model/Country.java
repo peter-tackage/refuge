@@ -16,8 +16,10 @@ public class Country extends PersistableObject {
         public static final String LATITUDE_COLUMN = "LATITUDE";
     }
 
-    public Country(String name) {
+    public Country(String name, Double latitude, Double longitude) {
         mName = name;
+        mLatitude = latitude;
+        mLongitude = longitude;
     }
 
     // Required by ORMLite

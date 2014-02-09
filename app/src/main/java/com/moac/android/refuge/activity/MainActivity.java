@@ -21,7 +21,7 @@ import com.moac.android.refuge.RefugeApplication;
 import com.moac.android.refuge.database.ModelService;
 import com.moac.android.refuge.fragment.NavigationDrawerFragment;
 import com.moac.android.refuge.R;
-import com.moac.android.refuge.importer.DOMFileImporter;
+import com.moac.android.refuge.importer.DataFileImporter;
 import com.moac.android.refuge.importer.LoadDataRunnable;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
@@ -72,8 +72,10 @@ public class MainActivity extends Activity
 
 
         String assetFile = "UNDataExport2012.xml";
+        String countriesLatLongFile = "CountriesLatLong.csv";
+
         try {
-            boolean attemptedToLoad = DoOnce.doOnce(this, LOAD_DATA_TASK_TAG, new LoadDataRunnable(new DOMFileImporter(mModelService), getAssets().open(assetFile)));
+            boolean attemptedToLoad = DoOnce.doOnce(this, LOAD_DATA_TASK_TAG, new LoadDataRunnable(new DataFileImporter(mModelService), getAssets().open(assetFile), getAssets().open(countriesLatLongFile)));
             Log.i(TAG, "Attempted to load data: " + attemptedToLoad);
         } catch (IOException e) {
             Log.e(TAG, "Failed to open the data file: " + assetFile, e);
