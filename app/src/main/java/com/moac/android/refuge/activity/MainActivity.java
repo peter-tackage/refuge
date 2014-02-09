@@ -18,9 +18,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
 import com.moac.android.refuge.RefugeApplication;
 import com.moac.android.refuge.database.ModelService;
 import com.moac.android.refuge.fragment.NavigationDrawerFragment;
@@ -42,6 +39,7 @@ public class MainActivity extends Activity
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String LOAD_DATA_TASK_TAG = "LOAD_DATA_TASK";
+    private static final String DISPLAYED_COUNTRIES_KEY = "DISPLAYED_COUNTRIES";
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -78,8 +76,6 @@ public class MainActivity extends Activity
         // Activity - instead see onNewIntent()
         handleIntent(getIntent());
 
-        mDisplayedCountries = new ArrayList<Country>();
-
         String assetFile = "UNDataExport2012.xml";
         String countriesLatLongFile = "CountriesLatLong.csv";
 
@@ -90,6 +86,23 @@ public class MainActivity extends Activity
             Log.e(TAG, "Failed to open the data file: " + assetFile, e);
             finish();
         }
+
+        mDisplayedCountries = initCountryList(savedInstanceState);
+        Visualizer.drawCountries(mModelService, mMap, mDisplayedCountries);
+
+    }
+
+    private List<Country> initCountryList(Bundle savedInstanceState) {
+        List<Country> result = new ArrayList<Country>();
+        if (savedInstanceState != null) {
+            long[] countryIds = savedInstanceState.getLongArray(DISPLAYED_COUNTRIES_KEY);
+            if (countryIds != null) {
+                for (long id : countryIds) {
+                    result.add(mModelService.getCountry(id));
+                }
+            }
+        }
+        return result;
     }
 
     @Override
@@ -108,6 +121,7 @@ public class MainActivity extends Activity
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(R.string.app_name);
     }
+
 
 
     @Override
@@ -165,7 +179,7 @@ public class MainActivity extends Activity
             // FIXME doSearch(query);
             Toast.makeText(this, "Searching for: " + query, Toast.LENGTH_LONG).show();
             Country country = mModelService.getCountryByName(query);
-            if(country != null) {
+            if (country != null) {
                 showCountry(country);
             } else {
                 Toast.makeText(this, "Country not found", Toast.LENGTH_SHORT).show();
@@ -179,6 +193,16 @@ public class MainActivity extends Activity
         Visualizer.drawCountries(mModelService, mMap, mDisplayedCountries);
     }
 
-    // TODO SaveInstanceState
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mDisplayedCountries.size() > 0) {
+            long[] displayedCountries = new long[mDisplayedCountries.size()];
+            for (int i = 0; i < mDisplayedCountries.size(); i++) {
+                displayedCountries[i] = mDisplayedCountries.get(i).getId();
+            }
+            outState.putLongArray(DISPLAYED_COUNTRIES_KEY, displayedCountries);
+        }
 
+    }
 }
