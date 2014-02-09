@@ -3,7 +3,6 @@ package com.moac.android.refuge.activity;
 import android.app.Activity;
 ;
 import android.app.ActionBar;
-import android.app.FragmentManager;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -25,8 +24,12 @@ import com.moac.android.refuge.R;
 import com.moac.android.refuge.importer.DataFileImporter;
 import com.moac.android.refuge.importer.LoadDataRunnable;
 import com.moac.android.refuge.model.Country;
+import com.moac.android.refuge.model.CountryStore;
+import com.moac.android.refuge.model.VisualEvent;
 import com.moac.android.refuge.util.DoOnce;
 import com.moac.android.refuge.util.Visualizer;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Produce;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,9 +51,14 @@ public class MainActivity extends Activity
 
     @Inject
     ModelService mModelService;
+
+    @Inject
+    Bus mBus;
+
     private GoogleMap mMap;
     private SearchView mSearchView;
     private List<Country> mDisplayedCountries;
+    private CountryStore mCountryStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,13 +114,21 @@ public class MainActivity extends Activity
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        // updateCountry the main content by replacing fragments
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, MapFragment.newInstance())
-                .commit();
-        // FIXME If we do this, then we should save the reference to the Fragment/map
+    public void onPause() {
+        super.onPause();
+        mBus.unregister(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mBus.register(this);
+    }
+
+    @Override
+    public void onCountryItemSelected(long countryId, boolean isSelected) {
+            // updateCountry the main content by replacing fragments
+            // FIXME
     }
 
     public void restoreActionBar() {
@@ -121,8 +137,6 @@ public class MainActivity extends Activity
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(R.string.app_name);
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -204,5 +218,12 @@ public class MainActivity extends Activity
             outState.putLongArray(DISPLAYED_COUNTRIES_KEY, displayedCountries);
         }
 
+    }
+
+    @Produce
+    public VisualEvent produceVisualEvent() {
+        // Assuming 'lastAnswer' exists.
+       // return new VisualEvent(mCountryStore.getCountries());
+        return null;
     }
 }

@@ -9,6 +9,7 @@ import com.moac.android.refuge.database.MockModelService;
 import com.moac.android.refuge.database.ModelService;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
+import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,6 +132,13 @@ public class DebugAppModule {
         }
 
         return new MockModelService(countryList, refugeeFlowList);
+    }
+
+    @Provides
+    @Singleton
+    Bus provideEventBus() {
+        Log.i(TAG, "Providing event bus");
+        return new Bus();
     }
 
 }
