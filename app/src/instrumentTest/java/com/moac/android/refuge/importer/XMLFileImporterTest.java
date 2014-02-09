@@ -66,6 +66,9 @@ public class XMLFileImporterTest extends InstrumentationTestCase {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        assertEquals(149765, persistentModelService.getTotalRefugeeFlowTo(72));
+
     }
 
     String printRefugeeFlow(RefugeeFlow refugeeFlow) {

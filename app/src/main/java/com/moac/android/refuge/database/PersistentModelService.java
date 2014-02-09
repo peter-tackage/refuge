@@ -165,7 +165,7 @@ public class PersistentModelService implements ModelService {
      * Bespoke queries - examples
      */
     private long queryTotalRefugeeFlowTo(long countryId) {
-        String query = "select sum(*) from " + RefugeeFlow.TABLE_NAME + " where " + RefugeeFlow.Columns.TO_COUNTRY_COLUMN + " = " + countryId;
+        String query = "select sum("+ RefugeeFlow.Columns.REFUGEE_COUNT_COLUMN +") from " + RefugeeFlow.TABLE_NAME + " where " + RefugeeFlow.Columns.TO_COUNTRY_COLUMN + " = " + countryId;
         Log.d(TAG, query);
         GenericRawResults<String[]> rawResults;
         try {
@@ -173,7 +173,6 @@ public class PersistentModelService implements ModelService {
             List<String[]> results = rawResults.getResults();
             // the results array should have 1 value
             String[] resultArray = results.get(0);
-            Log.d(TAG, "!!! count " + resultArray[0]);
             return Long.parseLong(resultArray[0]);
         } catch (java.sql.SQLException e) {
             throw new android.database.SQLException(e.getMessage());
@@ -181,7 +180,7 @@ public class PersistentModelService implements ModelService {
     }
 
     private long queryTotalRefugeeFlowFrom(long countryId) {
-        String query = "select sum(*) from " + RefugeeFlow.TABLE_NAME + " where " + RefugeeFlow.Columns.FROM_COUNTRY_COLUMN + " = " + countryId;
+        String query = "select sum("+ RefugeeFlow.Columns.REFUGEE_COUNT_COLUMN +") from " + RefugeeFlow.TABLE_NAME + " where " + RefugeeFlow.Columns.FROM_COUNTRY_COLUMN + " = " + countryId;
         Log.d(TAG, query);
 
         GenericRawResults<String[]> rawResults = null;
@@ -191,7 +190,6 @@ public class PersistentModelService implements ModelService {
             List<String[]> results = rawResults.getResults();
             // the results array should have 1 value
             String[] resultArray = results.get(0);
-            Log.d(TAG, "!!! count " + resultArray[0]);
             return Long.parseLong(resultArray[0]);
         } catch (java.sql.SQLException e) {
             throw new android.database.SQLException(e.getMessage());
