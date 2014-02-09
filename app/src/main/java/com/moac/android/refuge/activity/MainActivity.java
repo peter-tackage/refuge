@@ -26,9 +26,13 @@ import com.moac.android.refuge.RefugeApplication;
 import com.moac.android.refuge.database.ModelService;
 import com.moac.android.refuge.fragment.NavigationDrawerFragment;
 import com.moac.android.refuge.R;
+import com.moac.android.refuge.importer.DataFileImporter;
+import com.moac.android.refuge.importer.LoadDataRunnable;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
+import com.moac.android.refuge.util.DoOnce;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +54,7 @@ public class MainActivity extends Activity
     private GoogleMap mMap;
     private SearchView mSearchView;
     private static final long MAX_RADIUS = 1500000; // 1500 kms
+    private List<Country> mDisplayedCountries;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,30 +80,19 @@ public class MainActivity extends Activity
         // Activity - instead see onNewIntent()
         handleIntent(getIntent());
 
-//        String assetFile = "UNDataExport2012.xml";
-//        try {
-//            boolean attemptedToLoad = DoOnce.doOnce(this, LOAD_DATA_TASK_TAG, new LoadDataRunnable(new DOMFileImporter(mModelService), getAssets().open(assetFile)));
-//            Log.i(TAG, "Attempted to load data: " + attemptedToLoad);
-//        } catch (IOException e) {
-//            Log.e(TAG, "Failed to open the data file: " + assetFile, e);
-//            finish();
-//        }
+        mDisplayedCountries = new ArrayList<Country>();
 
-//        List<Country> allCountries = mModelService.getAllCountries();
-//        Log.i(TAG, "We loaded these countries: " + allCountries);
-//        for(Country c : allCountries) {
-//            Log.i(TAG, "Country: " + c.getName());
-//            List<RefugeeFlow> flows = mModelService.getRefugeeFlowsFrom(c.getId());
-//            Log.i(TAG, "Country has flows into: " + c.getName());
-//
-//        }
+        String assetFile = "UNDataExport2012.xml";
+        String countriesLatLongFile = "CountriesLatLong.csv";
 
-        List<Country> selectedCountries = new ArrayList<Country>();
-        selectedCountries.add(mModelService.getCountry(0));
-        selectedCountries.add(mModelService.getCountry(6));
-        drawCountries(selectedCountries);
+        try {
+            boolean attemptedToLoad = DoOnce.doOnce(this, LOAD_DATA_TASK_TAG, new LoadDataRunnable(new DataFileImporter(mModelService), getAssets().open(assetFile), getAssets().open(countriesLatLongFile)));
+            Log.i(TAG, "Attempted to load data: " + attemptedToLoad);
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to open the data file: " + assetFile, e);
+            finish();
+        }
     }
-
 
     private void drawCountries(List<Country> countries) {
         Log.i(TAG, "drawCountries() - Draw TO countries: " + countries);
@@ -233,8 +227,19 @@ public class MainActivity extends Activity
             String query = _intent.getStringExtra(SearchManager.QUERY).trim();
             // FIXME doSearch(query);
             Toast.makeText(this, "Searching for: " + query, Toast.LENGTH_LONG).show();
-            mModelService.getCountryByName(query);
+            Country country = mModelService.getCountryByName(query);
+            if(country != null) {
+                showCountry(country);
+            } else {
+                Toast.makeText(this, "Country not found", Toast.LENGTH_SHORT).show();
+            }
         }
+    }
+
+    private void showCountry(Country country) {
+        mDisplayedCountries.add(country);
+        mMap.clear();
+        drawCountries(mDisplayedCountries);
     }
 
     // TODO SaveInstanceState
