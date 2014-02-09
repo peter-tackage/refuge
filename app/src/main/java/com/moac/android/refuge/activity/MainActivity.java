@@ -162,6 +162,11 @@ public class MainActivity extends Activity
     private void handleIntent(Intent _intent) {
         if (Intent.ACTION_SEARCH.equals(_intent.getAction())) {
             String query = _intent.getStringExtra(SearchManager.QUERY).trim();
+            if (mDisplayedCountries.size() == 5) {
+              Toast.makeText(this, "Displaying max number of countries on map.", Toast.LENGTH_SHORT).show();
+              // add more colors!
+              return;
+            }
             // FIXME doSearch(query);
             Toast.makeText(this, "Searching for: " + query, Toast.LENGTH_LONG).show();
             Country country = mModelService.getCountryByName(query);

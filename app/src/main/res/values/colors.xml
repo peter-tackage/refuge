@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="yellow">#66D6B331</color>
+    <color name="yellowStroke">#FFD6B331</color>
+
+    <color name="purple">#66663399</color>
+    <color name="purpleStroke">#DD663399</color>
+
+    <color name="orange">#55FF6600</color>
+    <color name="orangeStroke">#FFFF6600</color>
+
+    <color name="green">#66669900</color>
+    <color name="greenStroke">#DD669900</color>
+
+    <color name="blue">#660066cc</color>
+    <color name="blueStroke">#DD0066cc</color>
+
+</resources>
