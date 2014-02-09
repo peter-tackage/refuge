@@ -15,7 +15,7 @@ public class CountryViewModel implements CountryAdapter.ViewModel {
     private final Country mCountry;
     private final int mColor;
 
-    public CountryViewModel(Country country, long totalIntake, int color) {
+    public CountryViewModel(Country country, int color, long totalIntake) {
         mCountry = country;
         mTotalIntake = totalIntake;
         mColor = color;

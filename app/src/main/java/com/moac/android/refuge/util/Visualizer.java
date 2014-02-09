@@ -1,6 +1,5 @@
 package com.moac.android.refuge.util;
 
-import android.graphics.Color;
 import android.util.Log;
 
 import com.moac.android.refuge.database.ModelService;
@@ -8,16 +7,13 @@ import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
+import java.util.Map;
 
-/**
- * Created by amelysh on 09/02/14.
- */
 public class Visualizer {
 
     private static final long MAX_RADIUS = 1500000; // 1500 kms
@@ -30,39 +26,41 @@ public class Visualizer {
     static final int[] strokeColors = {0xDD0066cc, 0xFFD6B331, 0xDD663399, 0xFFFF6600,
             0xDD669900};
 
-    public Visualizer() {
-    }
+    private Visualizer() { }
 
-    public static void drawCountries(ModelService modelService, GoogleMap map, List<Country> countries) {
+    public static void drawCountries(ModelService modelService, GoogleMap map, List<Country> countries, Map<Long, Integer> colorMap) {
             Log.d(TAG, "drawCountries() - Draw TO countries: " + countries);
             double maxRefugeeFlowTo = 0.0;
             for (Country country : countries) {
                 maxRefugeeFlowTo = Math.max(maxRefugeeFlowTo, modelService.getTotalRefugeeFlowTo(country.getId()));
             }
 
-            int index=0;
+            int colorIndex=0;
             // Maximum radius is defined
             for (Country toCountry : countries) {
-                drawAllFromCircles(modelService, map, toCountry.getId(), index, maxRefugeeFlowTo);
-                drawToCircle(modelService, map, toCountry.getId(), index, (modelService.getTotalRefugeeFlowTo(toCountry.getId())/maxRefugeeFlowTo));
-                index++;
+                int strokeColor = strokeColors[colorIndex];
+                int fillColor = fillColors[colorIndex];
+                colorMap.put(toCountry.getId(), strokeColor);
+                drawAllFromCircles(modelService, map, toCountry.getId(), strokeColor, maxRefugeeFlowTo);
+                drawToCircle(modelService, map, toCountry.getId(), strokeColor, fillColor, (modelService.getTotalRefugeeFlowTo(toCountry.getId())/maxRefugeeFlowTo));
+                colorIndex++;
             }
             Log.d(TAG, "drawCountries() - Calculated maxRefugeeFlowTo: " + maxRefugeeFlowTo);
     }
 
-    private static void drawAllFromCircles(ModelService modelService, GoogleMap map, long toCountryId, int index, double maxCount) {
-        Log.d(TAG, "drawAllFromCircles() - toCountryId: " + toCountryId + " toCountryColor: " + strokeColors[index] + " maxFlow: " + maxCount);
+    private static void drawAllFromCircles(ModelService modelService, GoogleMap map, long toCountryId, int strokeColor, double maxCount) {
+        Log.d(TAG, "drawAllFromCircles() - toCountryId: " + toCountryId + " toCountryColor: " + strokeColor + " maxFlow: " + maxCount);
         List<RefugeeFlow> flows = modelService.getRefugeeFlowsTo(toCountryId);
         for (RefugeeFlow flow : flows) {
             Country fromCountry = modelService.getCountry(flow.getFromCountry().getId());
             Log.d(TAG, "drawAllFromCircles() - Drawing flow from: " + fromCountry.getName() + " count: " + flow.getRefugeeCount() + " / " + maxCount);
-            drawScaledCircle(map, fromCountry.getLatLng(), (flow.getRefugeeCount()/maxCount), strokeColors[index], 0);
+            drawScaledCircle(map, fromCountry.getLatLng(), (flow.getRefugeeCount()/maxCount), strokeColor, 0);
         }
     }
 
-    private static void drawToCircle(ModelService modelService, GoogleMap map, long toCountryId, int index, double percent) {
+    private static void drawToCircle(ModelService modelService, GoogleMap map, long toCountryId, int strokeColor, int fillColor, double percent) {
         Country toCountry = modelService.getCountry(toCountryId);
-        drawScaledCircle(map, toCountry.getLatLng(), percent, strokeColors[index], fillColors[index]);
+        drawScaledCircle(map, toCountry.getLatLng(), percent, strokeColor, fillColor);
     }
 
     public static Circle drawScaledCircle(GoogleMap map,

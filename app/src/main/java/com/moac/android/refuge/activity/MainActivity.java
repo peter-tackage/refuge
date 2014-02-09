@@ -24,8 +24,6 @@ import com.moac.android.refuge.R;
 import com.moac.android.refuge.importer.DataFileImporter;
 import com.moac.android.refuge.importer.LoadDataRunnable;
 import com.moac.android.refuge.model.Country;
-import com.moac.android.refuge.model.CountryStore;
-import com.moac.android.refuge.model.VisualEvent;
 import com.moac.android.refuge.util.DoOnce;
 import com.moac.android.refuge.util.Visualizer;
 import com.squareup.otto.Bus;
@@ -33,12 +31,15 @@ import com.squareup.otto.Produce;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 public class MainActivity extends Activity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks,
+        NavigationDrawerFragment.FragmentContainer {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String LOAD_DATA_TASK_TAG = "LOAD_DATA_TASK";
@@ -57,8 +58,8 @@ public class MainActivity extends Activity
 
     private GoogleMap mMap;
     private SearchView mSearchView;
-    private List<Country> mDisplayedCountries;
-    private CountryStore mCountryStore;
+    private ArrayList<Country> mDisplayedCountries = new ArrayList<Country>();
+    private Map<Long, Integer> mColorMap = new HashMap<Long, Integer>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +67,7 @@ public class MainActivity extends Activity
         setContentView(R.layout.activity_main);
 
         RefugeApplication.from(this).inject(this);
+        mDisplayedCountries = initCountryList(savedInstanceState);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -95,13 +97,12 @@ public class MainActivity extends Activity
             finish();
         }
 
-        mDisplayedCountries = initCountryList(savedInstanceState);
-        Visualizer.drawCountries(mModelService, mMap, mDisplayedCountries);
+        Visualizer.drawCountries(mModelService, mMap, mDisplayedCountries, mColorMap);
 
     }
 
-    private List<Country> initCountryList(Bundle savedInstanceState) {
-        List<Country> result = new ArrayList<Country>();
+    private ArrayList<Country> initCountryList(Bundle savedInstanceState) {
+        ArrayList<Country> result = new ArrayList<Country>();
         if (savedInstanceState != null) {
             long[] countryIds = savedInstanceState.getLongArray(DISPLAYED_COUNTRIES_KEY);
             if (countryIds != null) {
@@ -127,8 +128,8 @@ public class MainActivity extends Activity
 
     @Override
     public void onCountryItemSelected(long countryId, boolean isSelected) {
-            // updateCountry the main content by replacing fragments
-            // FIXME
+        // updateCountry the main content by replacing fragments
+        // FIXME
     }
 
     public void restoreActionBar() {
@@ -177,16 +178,14 @@ public class MainActivity extends Activity
         } else if (id == R.id.action_clear) {
             mDisplayedCountries.clear();
             mMap.clear();
+            // FIXME produceClearMapEvent();
         }
         return super.onOptionsItemSelected(item);
     }
 
-
     @Override
     protected void onNewIntent(Intent _intent) {
         Log.i(TAG, "onNewIntent - received intent");
-        //  Removed this as causes the fragment to reperform search on rotation.
-        // setIntent(_intent);
         handleIntent(_intent);
     }
 
@@ -194,9 +193,9 @@ public class MainActivity extends Activity
         if (Intent.ACTION_SEARCH.equals(_intent.getAction())) {
             String query = _intent.getStringExtra(SearchManager.QUERY).trim();
             if (mDisplayedCountries.size() == 5) {
-              Toast.makeText(this, "Displaying max number of countries on map.", Toast.LENGTH_SHORT).show();
-              // add more colors!
-              return;
+                Toast.makeText(this, "Displaying max number of countries on map.", Toast.LENGTH_SHORT).show();
+                // add more colors!
+                return;
             }
             // FIXME doSearch(query);
             Toast.makeText(this, "Searching for: " + query, Toast.LENGTH_LONG).show();
@@ -212,7 +211,7 @@ public class MainActivity extends Activity
     private void showCountry(Country country) {
         mDisplayedCountries.add(country);
         mMap.clear();
-        Visualizer.drawCountries(mModelService, mMap, mDisplayedCountries);
+        Visualizer.drawCountries(mModelService, mMap, mDisplayedCountries, mColorMap);
     }
 
     @Override
@@ -229,9 +228,22 @@ public class MainActivity extends Activity
     }
 
     @Produce
-    public VisualEvent produceVisualEvent() {
-        // Assuming 'lastAnswer' exists.
-       // return new VisualEvent(mCountryStore.getCountries());
-        return null;
+    public ArrayList<Country> produceCountriesChangedEvent() {
+        return mDisplayedCountries;
+    }
+
+//    @Produce
+//    public Void produceClearMapEvent() {
+//        return null;
+//    }
+
+    @Override
+    public ArrayList<Country> getDisplayedCountries() {
+        return mDisplayedCountries;
+    }
+
+    @Override
+    public Map<Long, Integer> getColorMap() {
+        return mColorMap;
     }
 }

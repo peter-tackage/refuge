@@ -7,6 +7,7 @@ import com.moac.android.refuge.activity.MainActivity;
 import com.moac.android.refuge.database.DatabaseHelper;
 import com.moac.android.refuge.database.MockModelService;
 import com.moac.android.refuge.database.ModelService;
+import com.moac.android.refuge.fragment.NavigationDrawerFragment;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
 import com.squareup.otto.Bus;
@@ -18,7 +19,7 @@ import javax.inject.Singleton;
 
 import dagger.Provides;
 
-@dagger.Module(injects = {RefugeApplication.class, MainActivity.class})
+@dagger.Module(injects = {RefugeApplication.class, MainActivity.class, NavigationDrawerFragment.class})
 public class DebugAppModule {
     private static final String TAG = DebugAppModule.class.getSimpleName();
 

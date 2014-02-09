@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,13 +20,17 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.moac.android.refuge.R;
+import com.moac.android.refuge.RefugeApplication;
 import com.moac.android.refuge.adapter.CountryAdapter;
 import com.moac.android.refuge.adapter.CountryViewModel;
-import com.moac.android.refuge.model.VisualEvent;
+import com.moac.android.refuge.database.ModelService;
+import com.moac.android.refuge.model.Country;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -37,6 +42,7 @@ import javax.inject.Inject;
 public class NavigationDrawerFragment extends Fragment {
 
 
+    private static final String TAG = NavigationDrawerFragment.class.getSimpleName();
     /**
      * A pointer to the current callbacks instance (the Activity).
      */
@@ -57,6 +63,9 @@ public class NavigationDrawerFragment extends Fragment {
 
     @Inject
     Bus mBus;
+
+    @Inject
+    ModelService mModelService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,7 +100,9 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
 
-        mAdapter.addAll(mFragmentContainer.getDisplayedCountries());
+        Log.i(TAG, "Configuring Nav Draw Adapter");
+        mAdapter.addAll(makeListModels(mFragmentContainer.getDisplayedCountries(),
+                mFragmentContainer.getColorMap(), mModelService));
         mDrawerListView.setAdapter(mAdapter);
         // FIXME This should be derived from the saved state
         //mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
@@ -189,6 +200,8 @@ public class NavigationDrawerFragment extends Fragment {
         } catch (ClassCastException e) {
             throw new ClassCastException("Activity must implement NavigationDrawerCallbacks.");
         }
+        // Inject dependencies
+        RefugeApplication.from(this).inject(this);
     }
 
 
@@ -243,12 +256,33 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     public static interface FragmentContainer {
-        List<CountryViewModel> getDisplayedCountries();
+        List<Country> getDisplayedCountries();
+
+        Map<Long, Integer> getColorMap();
     }
 
     @Subscribe
-    public void countryListChangedEvent(VisualEvent event) {
-        // TODO: React to the event somehow!
+    public void countriesChangedEvent(ArrayList<Country> countries) {
+        Log.i(TAG, "Drawer received countriesChangedEvent, size: " + countries.size());
+        mAdapter.clear();
+        mAdapter.addAll(makeListModels(countries, mFragmentContainer.getColorMap(), mModelService));
     }
 
+//   FIXME - Doesn't like Void type... @Subscribe
+//    public void mapCleared(Void event) {
+//        Log.i(TAG, "Drawer received mapCleared");
+//        mAdapter.clear();
+//    }
+
+    private static List<CountryViewModel> makeListModels(List<Country> countries,
+                                                         Map<Long, Integer> colorMap,
+                                                            ModelService modelService) {
+        List<CountryViewModel> result = new ArrayList<CountryViewModel>();
+        for (Country country : countries) {
+            CountryViewModel vm = new CountryViewModel(country, colorMap.get(country.getId())
+            , modelService.getTotalRefugeeFlowTo(country.getId()));
+            result.add(vm);
+        }
+        return result;
+    }
 }

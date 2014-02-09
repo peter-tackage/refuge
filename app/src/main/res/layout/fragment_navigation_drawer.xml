@@ -5,5 +5,5 @@
     android:choiceMode="multipleChoice"
     android:divider="@android:color/transparent"
     android:dividerHeight="0dp"
-    android:background="#cccc"
+    android:background="#FFcccccc"
     tools:context="com.moac.android.refuge.fragment.NavigationDrawerFragment" />
