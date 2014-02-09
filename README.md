@@ -12,6 +12,6 @@ It thus shows a comparison in terms of how many refugees are received by countri
 **Visually comparing France and Germany**
 ![Example with France and Germany](https://github.com/peter-tackage/assets/raw/master/screenshots/refuge/FranceGermany.png)
 
-**Comparing refugee intakes across multiple countries**
+**Comparing refugees intake across multiple countries**
 ![Countries comparison](https://github.com/peter-tackage/assets/raw/master/screenshots/refuge/MultipleCountries.png)
 
