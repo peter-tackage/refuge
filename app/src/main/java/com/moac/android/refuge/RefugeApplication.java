@@ -26,7 +26,8 @@ public class RefugeApplication extends Application {
     @Override
     public void onCreate() {
         Log.d(TAG, "onCreate() - start");
-        Object prodModule = new DebugAppModule(this);
+        Object prodModule = new AppModule(this);
+        //Object debugAppModule = new DebugAppModule(this);
         objectGraph = ObjectGraph.create(prodModule);
     }
 

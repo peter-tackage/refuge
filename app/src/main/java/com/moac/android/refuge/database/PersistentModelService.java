@@ -3,6 +3,7 @@ package com.moac.android.refuge.database;
 import android.util.Log;
 
 import com.j256.ormlite.dao.GenericRawResults;
+import com.j256.ormlite.stmt.SelectArg;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.Demography;
 import com.moac.android.refuge.model.PersistableObject;
@@ -145,14 +146,28 @@ public class PersistentModelService implements ModelService {
         return queryAllRefugeeFlowsTo(countryId);
     }
 
+    @Override
+    public Country getCountryByName(String query) {
+        try {
+            // Use SelectArg to ensure values are properly escaped
+            // Refer - http://ormlite.com/javadoc/ormlite-core/doc-files/ormlite_3.html#index-select-arguments
+            SelectArg selectArg = new SelectArg();
+            selectArg.setValue(query);
+            return mDbHelper.getDaoEx(Country.class).queryBuilder().where()
+                    .like(Country.Columns.NAME_COLUMN, selectArg)
+                    .queryForFirst();
+        } catch (java.sql.SQLException e) {
+            throw new android.database.SQLException(e.getMessage());
+        }
+    }
+
     /**
      * Bespoke queries - examples
      */
     private long queryTotalRefugeeFlowTo(long countryId) {
         String query = "select sum(*) from " + RefugeeFlow.TABLE_NAME + " where " + RefugeeFlow.Columns.TO_COUNTRY_COLUMN + " = " + countryId;
         Log.d(TAG, query);
-
-        GenericRawResults<String[]> rawResults = null;
+        GenericRawResults<String[]> rawResults;
         try {
             rawResults = mDbHelper.getDaoEx(RefugeeFlow.class).queryRaw(query);
             List<String[]> results = rawResults.getResults();

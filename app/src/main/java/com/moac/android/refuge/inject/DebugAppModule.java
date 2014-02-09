@@ -38,48 +38,39 @@ public class DebugAppModule {
         List<Country> countryList = new ArrayList<Country>();
         List<RefugeeFlow> refugeeFlowList = new ArrayList<RefugeeFlow>();
 
-        Country au = new Country("Australia");
-        au.setLatLng(-27, 133);
+        Country au = new Country("Australia", -27d, 133d);
         au.setId(0);
         countryList.add(au);
 
-        Country af = new Country("Afghanistan");
-        af.setLatLng(33, 65);
+        Country af = new Country("Afghanistan", 33d, 65d);
         af.setId(1);
         countryList.add(af);
 
-        Country iq = new Country("Iraq");
-        iq.setLatLng(33, 45);
+        Country iq = new Country("Iraq", 33d, 45d);
         iq.setId(2);
         countryList.add(iq);
 
-        Country sy = new Country("Syria");
-        sy.setLatLng(30, 40);
+        Country sy = new Country("Syria", 30d, 40d);
         sy.setId(3);
         countryList.add(sy);
 
-        Country sl = new Country("Sri Lanka");
-        sl.setLatLng(15, 80);
+        Country sl = new Country("Sri Lanka", 15d, 80d);
         sl.setId(4);
         countryList.add(sl);
 
-        Country sw = new Country("Sweden");
-        sw.setLatLng(59.3294, 18.0686);
+        Country sw = new Country("Sweden", 59.3294, 18.0686);
         sw.setId(5);
         countryList.add(sw);
 
-        Country es = new Country("Spain");
-        es.setLatLng(40, -5);
+        Country es = new Country("Spain", 40d, -5d);
         es.setId(6);
         countryList.add(es);
 
-        Country mx = new Country("Mexico");
-        mx.setLatLng(15, -80);
+        Country mx = new Country("Mexico", 15d, -80d);
         mx.setId(7);
         countryList.add(mx);
 
-        Country cn = new Country("China");
-        cn.setLatLng(35, 110);
+        Country cn = new Country("China", 35d, 110d);
         cn.setId(8);
         countryList.add(cn);
 
