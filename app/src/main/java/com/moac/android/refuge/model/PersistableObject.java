@@ -27,7 +27,7 @@ public abstract class PersistableObject {
         return mId;
     }
 
-    void setId(long _id) {
+    public void setId(long _id) {
         mId = _id;
     }
 }

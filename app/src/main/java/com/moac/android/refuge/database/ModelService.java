@@ -58,4 +58,5 @@ public interface ModelService {
 
     List<RefugeeFlow> getRefugeeFlowsTo(long countryId);
 
+    Country getCountryByName(String query);
 }
