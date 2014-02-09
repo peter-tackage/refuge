@@ -25,32 +25,35 @@ public class XMLFileImporterTest extends InstrumentationTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
+        getInstrumentation().getContext().deleteDatabase("/data/data/com.moac.android.refuge/databases/refuge.db");
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+
     }
 
-    public void testDOMHandler () throws IOException, FileImportException {
-        ModelService mockModelService = new MockModelService();
-        DataFileImporter domParser = new DataFileImporter(mockModelService);
-
-        InputStream countriesLatLongIs = getInstrumentation().getContext().getResources().getAssets().open(countriesLatLongFile);
-        InputStream is = getInstrumentation().getContext().getResources().getAssets().open(testDataXMLFile);
-        domParser.parse(is, countriesLatLongIs);
-
-        Country fromCountry = new Country();
-        fromCountry.setName("Algeria");
-        Country toCountry = new Country();
-        toCountry.setName("Albania");
-
-        RefugeeFlow expectedResult = new RefugeeFlow(fromCountry, toCountry);
-        expectedResult.setRefugeeCount(1);
-        expectedResult.setYear(2012);
-
-        assertTrue(areRefugeeFlowsEqual(expectedResult, domParser.refugeeFlow));
-    }
+//    public void testDOMHandler () throws IOException, FileImportException {
+//        ModelService mockModelService = new MockModelService();
+//        DataFileImporter domParser = new DataFileImporter(mockModelService);
+//
+//        InputStream countriesLatLongIs = getInstrumentation().getContext().getResources().getAssets().open(countriesLatLongFile);
+//        InputStream is = getInstrumentation().getContext().getResources().getAssets().open(testDataXMLFile);
+//        domParser.parse(is, countriesLatLongIs);
+//
+//        Country fromCountry = new Country();
+//        fromCountry.setName("Algeria");
+//        Country toCountry = new Country();
+//        toCountry.setName("Albania");
+//
+//        RefugeeFlow expectedResult = new RefugeeFlow(fromCountry, toCountry);
+//        expectedResult.setRefugeeCount(1);
+//        expectedResult.setYear(2012);
+//
+//        assertTrue(areRefugeeFlowsEqual(expectedResult, domParser.refugeeFlow));
+//    }
 
     public void testDB() {
         String assetFile = "UNDataExport2012.xml";
@@ -62,15 +65,6 @@ public class XMLFileImporterTest extends InstrumentationTestCase {
             loadDataRunnable.run();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-        List<Country> allCountries = persistentModelService.getAllCountries();
-        Log.i("", "We loaded these countries: " + allCountries);
-        for(Country c : allCountries) {
-            Log.i("", "Country: " + c.getName());
-            List<RefugeeFlow> flows = persistentModelService.getRefugeeFlowsFrom(c.getId());
-            RefugeeFlow flow = flows.get(0);
-            Log.i("", "Flow: " + printRefugeeFlow(flow));
         }
     }
 
