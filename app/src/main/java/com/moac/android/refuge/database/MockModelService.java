@@ -29,8 +29,8 @@ public class MockModelService implements ModelService {
 
     @Override
     public Country getCountry(long id) {
-        for(Country c : mCountries) {
-            if(c.getId() == id) {
+        for (Country c : mCountries) {
+            if (c.getId() == id) {
                 return c;
             }
         }
@@ -134,11 +134,21 @@ public class MockModelService implements ModelService {
     @Override
     public List<RefugeeFlow> getRefugeeFlowsTo(long toCountryId) {
         List<RefugeeFlow> result = new ArrayList<RefugeeFlow>();
-        for(RefugeeFlow flow : mFlows) {
-            if(flow.getToCountry().getId() == toCountryId) {
+        for (RefugeeFlow flow : mFlows) {
+            if (flow.getToCountry().getId() == toCountryId) {
                 result.add(flow);
             }
         }
         return result;
+    }
+
+    @Override
+    public Country getCountryByName(String query) {
+        for (Country country : mCountries) {
+            if (country.getName().equalsIgnoreCase(query)) {
+                return country;
+            }
+        }
+        return null;
     }
 }
