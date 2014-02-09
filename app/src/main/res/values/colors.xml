@@ -16,4 +16,7 @@
     <color name="blue">#660066cc</color>
     <color name="blueStroke">#DD0066cc</color>
 
+
+    <color name="logo">#CDDB2B</color>
+
 </resources>
