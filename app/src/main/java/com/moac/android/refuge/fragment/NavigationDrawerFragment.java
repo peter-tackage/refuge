@@ -25,6 +25,7 @@ import com.moac.android.refuge.adapter.CountryAdapter;
 import com.moac.android.refuge.adapter.CountryViewModel;
 import com.moac.android.refuge.database.ModelService;
 import com.moac.android.refuge.model.Country;
+import com.moac.android.refuge.model.MapClearedEvent;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -106,19 +107,15 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerListView.setAdapter(mAdapter);
         // FIXME This should be derived from the saved state
         //mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+        mBus.register(this);
+
         return mDrawerListView;
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
         mBus.unregister(this);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mBus.register(this);
     }
 
     private void selectItem(int position, boolean isSelected) {
@@ -268,19 +265,19 @@ public class NavigationDrawerFragment extends Fragment {
         mAdapter.addAll(makeListModels(countries, mFragmentContainer.getColorMap(), mModelService));
     }
 
-//   FIXME - Doesn't like Void type... @Subscribe
-//    public void mapCleared(Void event) {
-//        Log.i(TAG, "Drawer received mapCleared");
-//        mAdapter.clear();
-//    }
+    @Subscribe
+    public void mapCleared(MapClearedEvent event) {
+        Log.i(TAG, "Drawer received mapCleared");
+      //  mAdapter.clear();
+    }
 
     private static List<CountryViewModel> makeListModels(List<Country> countries,
                                                          Map<Long, Integer> colorMap,
-                                                            ModelService modelService) {
+                                                         ModelService modelService) {
         List<CountryViewModel> result = new ArrayList<CountryViewModel>();
         for (Country country : countries) {
             CountryViewModel vm = new CountryViewModel(country, colorMap.get(country.getId())
-            , modelService.getTotalRefugeeFlowTo(country.getId()));
+                    , modelService.getTotalRefugeeFlowTo(country.getId()));
             result.add(vm);
         }
         return result;

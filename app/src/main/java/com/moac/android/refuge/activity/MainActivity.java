@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
-import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -24,6 +23,7 @@ import com.moac.android.refuge.R;
 import com.moac.android.refuge.importer.DataFileImporter;
 import com.moac.android.refuge.importer.LoadDataRunnable;
 import com.moac.android.refuge.model.Country;
+import com.moac.android.refuge.model.MapClearedEvent;
 import com.moac.android.refuge.util.DoOnce;
 import com.moac.android.refuge.util.Visualizer;
 import com.squareup.otto.Bus;
@@ -32,7 +32,6 @@ import com.squareup.otto.Produce;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -152,12 +151,12 @@ public class MainActivity extends Activity
             mSearchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
             mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
             mSearchView.setIconifiedByDefault(true);
-            mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    if (v == mSearchView && !hasFocus) mSearchView.setIconified(true);
-                }
-            });
+//            mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+//                @Override
+//                public void onFocusChange(View v, boolean hasFocus) {
+//                    if (v == mSearchView && !hasFocus) mSearchView.setIconified(true);
+//                }
+//            });
             // Note: I don't register callbacks to invoke the search query - use the Intents instead.
 
             restoreActionBar();
@@ -178,7 +177,8 @@ public class MainActivity extends Activity
         } else if (id == R.id.action_clear) {
             mDisplayedCountries.clear();
             mMap.clear();
-            // FIXME produceClearMapEvent();
+            produceClearMapEvent();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -197,8 +197,6 @@ public class MainActivity extends Activity
                 // add more colors!
                 return;
             }
-            // FIXME doSearch(query);
-            Toast.makeText(this, "Searching for: " + query, Toast.LENGTH_LONG).show();
             Country country = mModelService.getCountryByName(query);
             if (country != null) {
                 showCountry(country);
@@ -212,6 +210,7 @@ public class MainActivity extends Activity
         mDisplayedCountries.add(country);
         mMap.clear();
         Visualizer.drawCountries(mModelService, mMap, mDisplayedCountries, mColorMap);
+        produceCountriesChangedEvent();
     }
 
     @Override
@@ -232,10 +231,11 @@ public class MainActivity extends Activity
         return mDisplayedCountries;
     }
 
-//    @Produce
-//    public Void produceClearMapEvent() {
-//        return null;
-//    }
+    @Produce
+    public MapClearedEvent produceClearMapEvent() {
+        Log.i(TAG, "Sending produceClearMapEvent");
+        return new MapClearedEvent();
+    }
 
     @Override
     public ArrayList<Country> getDisplayedCountries() {
