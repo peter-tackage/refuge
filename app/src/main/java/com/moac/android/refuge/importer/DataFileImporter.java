@@ -1,11 +1,8 @@
 package com.moac.android.refuge.importer;
 
-import android.util.Log;
-
 import com.moac.android.refuge.database.ModelService;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
-import com.moac.android.refuge.util.Tuple;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -38,12 +35,10 @@ public class DataFileImporter {
 
     public RefugeeFlow refugeeFlow;
     private ModelService mModelService;
-    private HashMap<String, Tuple> countriesLatLong;
     private  HashMap<String, Country>countriesMap;
 
     public DataFileImporter(ModelService modelService) {
         mModelService = modelService;
-        countriesLatLong = new HashMap<String, Tuple>();
         countriesMap = new HashMap<String, Country>();
     }
 
@@ -72,7 +67,6 @@ public class DataFileImporter {
 
             Node recordNode = nodeList.item(i);
             if (recordNode instanceof Element) {
-                RefugeeFlow flow = new RefugeeFlow();
                 NodeList childNodes = recordNode.getChildNodes();
                 for (int j = 0; j < childNodes.getLength(); j++) {
                     Node fieldNode = childNodes.item(j);
@@ -80,19 +74,11 @@ public class DataFileImporter {
                         String fieldNameValue =  fieldNode.getAttributes().getNamedItem(NAME_ATTRIBUTE_TAG).getNodeValue();
                         if (fieldNameValue.equals(FROM_COUNTRY_TAG)) {
                             String content = fieldNode.getLastChild().getTextContent().trim();
-                            Tuple latLong = getLatLong(content);
-                            fromCountry = countriesMap.get(content.toUpperCase());
-//                            fromCountry = new Country(content, latLong.getFirstValue(), latLong.getSecondValue());
-                            Log.d("FROM", content + " lat " + latLong.getFirstValue() + "long " + latLong.getSecondValue());
-//                            mModelService.createCountry(fromCountry);
+                            fromCountry = getLatLong(content);
                         }
                         else if (fieldNameValue.equals(TO_COUNTRY_TAG)) {
                             String content = fieldNode.getLastChild().getTextContent().trim();
-                            Tuple latLong = getLatLong(content);
-                            toCountry = countriesMap.get(content.toUpperCase());
-//                            toCountry = new Country(content, latLong.getFirstValue(), latLong.getSecondValue());
-                            Log.d("TO", content + " lat " + latLong.getFirstValue() + "long " + latLong.getSecondValue());
-//                            mModelService.createCountry(toCountry);
+                            toCountry = getLatLong(content);
                         }
                         else if (fieldNameValue.equals(YEAR_TAG)) {
                             String content = fieldNode.getLastChild().getTextContent().trim();
@@ -126,21 +112,19 @@ public class DataFileImporter {
         String line;
         while ((line = reader.readLine()) != null) {
             String[] rowData = line.split(",");
-            countriesLatLong.put(rowData[0], new Tuple(Double.parseDouble(rowData[2]), Double.parseDouble(rowData[1])));
-            Country country = new Country(rowData[0], Double.parseDouble(rowData[2]), Double.parseDouble(rowData[1]));
+            Country country = new Country(rowData[0], Double.parseDouble(rowData[1]), Double.parseDouble(rowData[2]));
             countriesMap.put(rowData[0], country);
             mModelService.createCountry(country);
         }
     }
 
-    private Tuple getLatLong(String country) {
+    private Country getLatLong(String country) throws FileImportException {
         country = country.toUpperCase();
-        if (countriesLatLong.containsKey(country)) {
-            return (Tuple) countriesLatLong.get(country);
+        if (countriesMap.containsKey(country)) {
+            return (Country) countriesMap.get(country);
         }
         else {
-            Log.d("", "@@@@@@@@@@@@@@" + country);
-            return null;
+            throw new FileImportException(new Exception("Country not found: " + country));
         }
     }
 }
