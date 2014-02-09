@@ -160,6 +160,9 @@ public class MainActivity extends Activity
         int id = item.getItemId();
         if (id == R.id.action_about) {
             return true;
+        } else if (id == R.id.action_clear) {
+            mDisplayedCountries.clear();
+            mMap.clear();
         }
         return super.onOptionsItemSelected(item);
     }
