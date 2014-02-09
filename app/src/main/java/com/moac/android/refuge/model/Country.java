@@ -26,7 +26,7 @@ public class Country extends PersistableObject {
     @DatabaseField(columnName = Columns.NAME_COLUMN, unique = true, canBeNull = false)
     private String mName;
 
-    @DatabaseField(columnName = Columns.LONGITUDE_COLUMN, canBeNull = false)
+    @DatabaseField(columnName = Columns.LONGITUDE_COLUMN , canBeNull = false)
     private double mLongitude;
 
     @DatabaseField(columnName = Columns.LATITUDE_COLUMN, canBeNull = false)

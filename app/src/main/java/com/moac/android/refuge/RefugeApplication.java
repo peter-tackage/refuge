@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.util.Log;
 
 import com.moac.android.refuge.inject.AppModule;
+import com.moac.android.refuge.inject.DebugAppModule;
 
 import dagger.ObjectGraph;
 
@@ -25,7 +26,7 @@ public class RefugeApplication extends Application {
     @Override
     public void onCreate() {
         Log.d(TAG, "onCreate() - start");
-        Object prodModule = new AppModule(this);
+        Object prodModule = new DebugAppModule(this);
         objectGraph = ObjectGraph.create(prodModule);
     }
 
