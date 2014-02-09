@@ -7,7 +7,6 @@ import android.app.FragmentManager;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -29,8 +28,8 @@ import com.moac.android.refuge.R;
 import com.moac.android.refuge.importer.DataFileImporter;
 import com.moac.android.refuge.importer.LoadDataRunnable;
 import com.moac.android.refuge.model.Country;
-import com.moac.android.refuge.model.RefugeeFlow;
 import com.moac.android.refuge.util.DoOnce;
+import com.moac.android.refuge.util.Visualizer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,7 +52,6 @@ public class MainActivity extends Activity
     ModelService mModelService;
     private GoogleMap mMap;
     private SearchView mSearchView;
-    private static final long MAX_RADIUS = 1500000; // 1500 kms
     private List<Country> mDisplayedCountries;
 
     @Override
@@ -92,67 +90,6 @@ public class MainActivity extends Activity
             Log.e(TAG, "Failed to open the data file: " + assetFile, e);
             finish();
         }
-    }
-
-    private void drawCountries(List<Country> countries) {
-        Log.i(TAG, "drawCountries() - Draw TO countries: " + countries);
-        long maxRefugeeFlowTo = 0;
-        for (Country country : countries) {
-            maxRefugeeFlowTo = Math.max(maxRefugeeFlowTo,
-                    mModelService.getTotalRefugeeFlowTo(country.getId()));
-        }
-
-        final int[] colors =
-                {0xAA434B52, 0xAA54B395, 0xAAD6B331,
-                        0xAAA465C5, 0xAA5661DE, 0xAA4AB498, 0xAAFA7B68, 0xAAFF6600,
-                        0xAA669900, 0xAA66CCCC};
-
-        // Maximum radius is defined
-        for (Country toCountry : countries) {
-            drawAllFromCircles(toCountry.getId(), colors[(int) toCountry.getId()], maxRefugeeFlowTo);
-            drawToCircle(toCountry.getId(), colors[(int) toCountry.getId()], mModelService.getTotalRefugeeFlowTo(toCountry.getId()), maxRefugeeFlowTo);
-
-        }
-        Log.i(TAG, "drawCountries() - Calculated maxRefugeeFlowTo: " + maxRefugeeFlowTo);
-    }
-
-    private void drawAllFromCircles(long toCountryId, int toCountryColor, long maxCount) {
-        Log.i(TAG, "drawAllFromCircles() - toCountryId: " + toCountryId + " toCountryColor: " + toCountryColor + " maxFlow: " + maxCount);
-        List<RefugeeFlow> flows = mModelService.getRefugeeFlowsTo(toCountryId);
-        for (RefugeeFlow flow : flows) {
-            Country fromCountry = mModelService.getCountry(flow.getFromCountry().getId());
-            Log.i(TAG, "drawAllFromCircles() - Drawing flow from: " + fromCountry.getName());
-            drawScaledCircle(mMap, fromCountry.getLatLng(), flow.getRefugeeCount(), maxCount, toShade(toCountryColor), toCountryColor);
-        }
-    }
-
-    private void drawToCircle(long toCountryId, int toCountryColor, long countTo, long maxCountTo) {
-        Country toCountry = mModelService.getCountry(toCountryId);
-        drawScaledCircle(mMap, toCountry.getLatLng(), countTo, maxCountTo, toCountryColor, toShade(toCountryColor));
-    }
-
-    public static Circle drawScaledCircle(GoogleMap map,
-                                          LatLng coordinates,
-                                          long count, long maxCount,
-                                          int strokeColor, int fillColor) {
-        Log.i(TAG, "drawScaledCircle() - count: " + count);
-        long radius = (long) (((double) count / (double) maxCount) * MAX_RADIUS);
-        Log.i(TAG, "drawScaledCircle() - radius (m): " + radius);
-        CircleOptions circleOptions = new CircleOptions()
-                .center(coordinates)
-                .radius(radius)
-                .fillColor(fillColor)
-                .strokeColor(strokeColor)
-                .strokeWidth(5);
-        return map.addCircle(circleOptions);
-    }
-
-    private static int toShade(int _color) {
-        float[] hsv = new float[3];
-        Color.colorToHSV(_color, hsv);
-        hsv[1] *= 0.5;
-        hsv[2] *= 1.5;
-        return Color.HSVToColor(hsv);
     }
 
     @Override
@@ -239,7 +176,7 @@ public class MainActivity extends Activity
     private void showCountry(Country country) {
         mDisplayedCountries.add(country);
         mMap.clear();
-        drawCountries(mDisplayedCountries);
+        Visualizer.drawCountries(mModelService, mMap, mDisplayedCountries);
     }
 
     // TODO SaveInstanceState
