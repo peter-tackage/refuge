@@ -4,9 +4,19 @@ import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.Demography;
 import com.moac.android.refuge.model.RefugeeFlow;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class MockModelService implements ModelService{
+public class MockModelService implements ModelService {
+
+    List<Country> mCountries;
+    List<RefugeeFlow> mFlows;
+
+    public MockModelService(List<Country> countrys,
+                            List<RefugeeFlow> fLows) {
+        mCountries = countrys;
+        mFlows = fLows;
+    }
 
     /*
      * Country
@@ -14,27 +24,32 @@ public class MockModelService implements ModelService{
 
     @Override
     public List<Country> getAllCountries() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Country getCountry(long id) {
+        for (Country c : mCountries) {
+            if (c.getId() == id) {
+                return c;
+            }
+        }
         return null;
     }
 
     @Override
     public long createCountry(Country country) {
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void updateCountry(Country country) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void deleteCountry(long id) {
-
+        throw new UnsupportedOperationException();
     }
 
     /*
@@ -43,27 +58,27 @@ public class MockModelService implements ModelService{
 
     @Override
     public List<Demography> getAllDemographics() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Demography getDemography(long id) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public long createDemography(Demography demography) {
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void updateDemography(Demography demography) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void deleteDemography(long id) {
-
+        throw new UnsupportedOperationException();
     }
 
     /*
@@ -72,62 +87,68 @@ public class MockModelService implements ModelService{
 
     @Override
     public List<RefugeeFlow> getAllRefugeeFlows() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public RefugeeFlow getRefugeeFlow(long id) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public long createRefugeeFlow(RefugeeFlow refugeeFlow) {
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void updateRefugeeFlow(RefugeeFlow refugeeFlow) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void deleteRefugeeFlow(long id) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public long getTotalRefugeeFlowTo(long countryId) {
-        return 0;
+    public long getTotalRefugeeFlowTo(long toCountryId) {
+        long totalCount = 0;
+        for (RefugeeFlow flow : mFlows) {
+            if (flow.getToCountry().getId() == toCountryId) {
+                totalCount += flow.getRefugeeCount();
+            }
+        }
+        return totalCount;
     }
 
     @Override
     public long getTotalRefugeeFlowFrom(long countryId) {
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<RefugeeFlow> getRefugeeFlowsFrom(long countryId) {
-//        List<RefugeeFlow> flows = new ArrayList<RefugeeFlow>();
-//        RefugeeFlow af = new RefugeeFlow();
-//        af.setRefugeeCount(230);
-//
-//
-//        RefugeeFlow ir = new RefugeeFlow();
-//        ir.setRefugeeCount(120);
-//
-//        RefugeeFlow iq = new RefugeeFlow();
-//        iq.setRefugeeCount(800);
-//
-//        flows.add(af);
-//        flows.add(ir);
-//        flows.add(iq);
-//
-//        return flows;
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<RefugeeFlow> getRefugeeFlowsTo(long countryId) {
+    public List<RefugeeFlow> getRefugeeFlowsTo(long toCountryId) {
+        List<RefugeeFlow> result = new ArrayList<RefugeeFlow>();
+        for (RefugeeFlow flow : mFlows) {
+            if (flow.getToCountry().getId() == toCountryId) {
+                result.add(flow);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Country getCountryByName(String query) {
+        for (Country country : mCountries) {
+            if (country.getName().equalsIgnoreCase(query)) {
+                return country;
+            }
+        }
         return null;
     }
 }
