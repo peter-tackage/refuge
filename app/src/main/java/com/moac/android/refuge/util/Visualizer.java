@@ -41,8 +41,8 @@ public class Visualizer {
 
             // Maximum radius is defined
             for (Country toCountry : countries) {
-                drawAllFromCircles(modelService, map, toCountry.getId(), colors[(int) toCountry.getId()], maxRefugeeFlowTo);
-                drawToCircle(modelService, map, toCountry.getId(), colors[(int) toCountry.getId()], modelService.getTotalRefugeeFlowTo(toCountry.getId()), maxRefugeeFlowTo);
+                drawAllFromCircles(modelService, map, toCountry.getId(), colors[(int) toCountry.getId() % (colors.length)], maxRefugeeFlowTo);
+                drawToCircle(modelService, map, toCountry.getId(), colors[(int) toCountry.getId() % (colors.length)], modelService.getTotalRefugeeFlowTo(toCountry.getId()), maxRefugeeFlowTo);
 
             }
             Log.i(TAG, "drawCountries() - Calculated maxRefugeeFlowTo: " + maxRefugeeFlowTo);
