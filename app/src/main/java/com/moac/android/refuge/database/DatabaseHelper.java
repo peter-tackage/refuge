@@ -39,7 +39,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         PERSISTABLE_OBJECTS = new Class[]{Country.class, Demography.class, RefugeeFlow.class};
     }
 
-    // Testing only?
     protected DatabaseHelper(Context context, String databaseName) {
         super(context, databaseName, null, DATABASE_VERSION);
     }
@@ -136,7 +135,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public <T extends PersistableObject> void update(PersistableObject entity, Class<T> objClass) {
         try {
             int count = getDaoEx(objClass).update(objClass.cast(entity));
-            assert (count == 1);
         } catch (java.sql.SQLException e) {
             throw new SQLException(e.getMessage());
         }
@@ -145,7 +143,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public <T extends PersistableObject> void deleteById(long id, Class<T> objClass) {
         try {
             int count = getDaoEx(objClass).deleteById(id);
-            assert (count == 1);
         } catch (java.sql.SQLException e) {
             throw new SQLException(e.getMessage());
         }

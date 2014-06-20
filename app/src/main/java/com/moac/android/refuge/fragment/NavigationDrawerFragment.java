@@ -25,7 +25,7 @@ import com.moac.android.refuge.adapter.CountryAdapter;
 import com.moac.android.refuge.adapter.CountryViewModel;
 import com.moac.android.refuge.database.ModelService;
 import com.moac.android.refuge.model.Country;
-import com.moac.android.refuge.model.MapClearedEvent;
+import com.moac.android.refuge.event.MapClearedEvent;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 

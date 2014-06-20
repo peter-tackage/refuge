@@ -23,7 +23,7 @@ import com.moac.android.refuge.R;
 import com.moac.android.refuge.importer.DataFileImporter;
 import com.moac.android.refuge.importer.LoadDataRunnable;
 import com.moac.android.refuge.model.Country;
-import com.moac.android.refuge.model.MapClearedEvent;
+import com.moac.android.refuge.event.MapClearedEvent;
 import com.moac.android.refuge.util.DoOnce;
 import com.moac.android.refuge.util.Visualizer;
 import com.squareup.otto.Bus;

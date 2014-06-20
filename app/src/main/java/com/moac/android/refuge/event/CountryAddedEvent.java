@@ -1,4 +1,4 @@
-package com.moac.android.refuge.model;
+package com.moac.android.refuge.event;
 
 import com.moac.android.refuge.adapter.CountryViewModel;
 
