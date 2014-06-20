@@ -1,5 +1,10 @@
-.gradle
-/local.properties
-/.idea
-.DS_Store
+local.properties
+
+# Intellij artifacts
+.idea/
 *.iml
+
+# Gradle artifacts
+.gradle/
+build/
+
