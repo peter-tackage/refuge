@@ -8,5 +8,7 @@
     <string name="action_clear">Clear</string>
     <string name="menu_search">Search</string>
     <string name="search_hint">Search countries</string>
+    <string name="open_drawer_hint">Open Drawer</string>
+    <string name="close_drawer_hint">Close Drawer</string>
 
 </resources>
