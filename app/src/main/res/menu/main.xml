@@ -6,7 +6,7 @@
         android:actionViewClass="android.widget.SearchView"
         android:icon="@android:drawable/ic_menu_search"
         android:showAsAction="always"
-        android:title="@string/menu_search"></item>
+        android:title="@string/menu_search"/>
     <item
         android:id="@+id/action_clear"
         android:title="@string/action_clear"
