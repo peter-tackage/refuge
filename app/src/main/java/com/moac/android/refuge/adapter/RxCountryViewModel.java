@@ -10,7 +10,7 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
-public class RxCountrFyViewModel {
+public class RxCountryViewModel {
 
     private final CompositeSubscription compositeSubscription = new CompositeSubscription();
 
