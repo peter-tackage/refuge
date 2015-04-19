@@ -1,22 +1,16 @@
 package com.moac.android.refuge.search;
 
 import android.app.SearchManager;
-import android.content.*;
+import android.content.ContentProvider;
+import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.MatrixCursor;
-import android.database.MergeCursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
 
 import java.util.Arrays;
 
-/*
-* Calls through to the Contacts Suggestion endpoint.
-* Refer SearchManager and
-* https://android.googlesource.com/platform/packages/apps/GlobalSearch/+/master/src/com/android/globalsearch/
-*
-*/
 public class CountrySuggestionProvider extends ContentProvider {
 
     public static String TAG = CountrySuggestionProvider.class.getSimpleName();

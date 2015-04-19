@@ -1,16 +1,13 @@
 package com.moac.android.refuge.fragment;
 
-import android.app.Activity;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.res.Configuration;
+import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,19 +18,20 @@ import android.widget.ListView;
 
 import com.moac.android.refuge.R;
 import com.moac.android.refuge.RefugeApplication;
-import com.moac.android.refuge.adapter.CountryAdapter;
-import com.moac.android.refuge.adapter.CountryViewModel;
-import com.moac.android.refuge.database.ModelService;
-import com.moac.android.refuge.model.Country;
-import com.moac.android.refuge.event.MapClearedEvent;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
+import com.moac.android.refuge.adapter.CountryViewBinder;
+import com.moac.android.refuge.adapter.RxCountryAdapter;
+import com.moac.android.refuge.adapter.RxCountryViewModel;
+import com.moac.android.refuge.database.RefugeeDataStore;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
+import rx.Observable;
+import rx.Subscription;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -44,49 +42,33 @@ public class NavigationDrawerFragment extends Fragment {
 
 
     private static final String TAG = NavigationDrawerFragment.class.getSimpleName();
-    /**
-     * A pointer to the current callbacks instance (the Activity).
-     */
     private NavigationDrawerCallbacks mCallbacks;
 
-    /**
-     * Helper component that ties the action bar to the navigation drawer.
-     */
     private ActionBarDrawerToggle mDrawerToggle;
-
     private DrawerLayout mDrawerLayout;
+
     private View mFragmentContainerView;
     private ListView mDrawerListView;
-    private CountryAdapter mAdapter;
+    private List<RxCountryViewModel> mViewModels = Collections.emptyList();
 
-    private boolean mFromSavedInstanceState;
     private FragmentContainer mFragmentContainer;
-
-    @Inject
-    Bus mBus;
-
-    @Inject
-    ModelService mModelService;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Read in the flag indicating whether or not the user has demonstrated awareness of the
-        // drawer. See PREF_USER_LEARNED_DRAWER for details.
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-    }
+    private Subscription mDisplayCountrySub;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         // Indicate that this fragment would like to influence the set of actions in the action bar.
         setHasOptionsMenu(true);
+
+        // Inject dependencies
+        RefugeApplication.from(this).inject(this);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mAdapter = new CountryAdapter(getActivity());
+
         mDrawerListView = (ListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
         mDrawerListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -101,21 +83,37 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
 
-        Log.i(TAG, "Configuring Nav Draw Adapter");
-        mAdapter.addAll(makeListModels(mFragmentContainer.getDisplayedCountries(),
-                mFragmentContainer.getColorMap(), mModelService));
-        mDrawerListView.setAdapter(mAdapter);
-        // FIXME This should be derived from the saved state
-        //mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-        mBus.register(this);
-
         return mDrawerListView;
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mBus.unregister(this);
+    public void onResume() {
+        super.onResume();
+        mDisplayCountrySub = mFragmentContainer.getDisplayedCountries()
+                .map(new Func1<List<Long>, List<RxCountryViewModel>>() {
+                    @Override
+                    public List<RxCountryViewModel> call(List<Long> countryIds) {
+                        return createDataModel(countryIds
+                                , mFragmentContainer.getColorMap()
+                                , mFragmentContainer.getRefugeeDataStore());
+                    }
+                }).subscribe(new Action1<List<RxCountryViewModel>>() {
+                    @Override
+                    public void call(List<RxCountryViewModel> viewModels) {
+                        mViewModels = viewModels;
+                        subscribeViewModels();
+                        mDrawerListView.setAdapter(new RxCountryAdapter(getActivity(),
+                                mViewModels,
+                                new CountryViewBinder(R.layout.country_info_row)));
+                    }
+                });
+    }
+
+    @Override
+    public void onPause() {
+        mDisplayCountrySub.unsubscribe();
+        unsubscribeViewModels();
+        super.onPause();
     }
 
     private void selectItem(int position, boolean isSelected) {
@@ -197,10 +195,7 @@ public class NavigationDrawerFragment extends Fragment {
         } catch (ClassCastException e) {
             throw new ClassCastException("Activity must implement NavigationDrawerCallbacks.");
         }
-        // Inject dependencies
-        RefugeApplication.from(this).inject(this);
     }
-
 
     @Override
     public void onDetach() {
@@ -253,33 +248,34 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     public static interface FragmentContainer {
-        List<Country> getDisplayedCountries();
+        Observable<List<Long>> getDisplayedCountries();
 
         Map<Long, Integer> getColorMap();
+
+        RefugeeDataStore getRefugeeDataStore();
     }
 
-    @Subscribe
-    public void countriesChangedEvent(ArrayList<Country> countries) {
-        Log.i(TAG, "Drawer received countriesChangedEvent, size: " + countries.size());
-        mAdapter.clear();
-        mAdapter.addAll(makeListModels(countries, mFragmentContainer.getColorMap(), mModelService));
-    }
-
-    @Subscribe
-    public void mapCleared(MapClearedEvent event) {
-        Log.i(TAG, "Drawer received mapCleared");
-      //  mAdapter.clear();
-    }
-
-    private static List<CountryViewModel> makeListModels(List<Country> countries,
-                                                         Map<Long, Integer> colorMap,
-                                                         ModelService modelService) {
-        List<CountryViewModel> result = new ArrayList<CountryViewModel>();
-        for (Country country : countries) {
-            CountryViewModel vm = new CountryViewModel(country, colorMap.get(country.getId())
-                    , modelService.getTotalRefugeeFlowTo(country.getId()));
-            result.add(vm);
+    private static List<RxCountryViewModel> createDataModel(List<Long> countryIds,
+                                                            Map<Long, Integer> colorMap,
+                                                            RefugeeDataStore refugeeDataStore) {
+        List<RxCountryViewModel> models = new ArrayList<RxCountryViewModel>();
+        for (Long id : countryIds) {
+            RxCountryViewModel vm = new RxCountryViewModel(refugeeDataStore, colorMap, id);
+            models.add(vm);
         }
-        return result;
+        return models;
     }
+
+    public void subscribeViewModels() {
+        for (RxCountryViewModel vm : mViewModels) {
+            vm.subscribeToDataStore();
+        }
+    }
+
+    private void unsubscribeViewModels() {
+        for (RxCountryViewModel vm : mViewModels) {
+            vm.unsubscribeFromDataStore();
+        }
+    }
+
 }

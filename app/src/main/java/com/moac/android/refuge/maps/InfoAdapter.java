@@ -1,9 +1,8 @@
 package com.moac.android.refuge.maps;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.TextView;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
@@ -15,7 +14,8 @@ public class InfoAdapter implements GoogleMap.InfoWindowAdapter {
 
     private final LayoutInflater mInflater;
     private final Map<Marker, Object> mMarkerMap;
-//
+
+    //
     public InfoAdapter(LayoutInflater inflater, Map<Marker, Object> markerMap) {
         mInflater = inflater;
         mMarkerMap = markerMap;

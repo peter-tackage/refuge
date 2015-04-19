@@ -20,7 +20,8 @@ public class Demography extends PersistableObject {
     }
 
     // Required by ORMLite
-    public Demography() {}
+    public Demography() {
+    }
 
     @DatabaseField(columnName = Columns.COUNTRY_COLUMN, foreign = true, canBeNull = false)
     private Country mCountry;
@@ -34,20 +35,34 @@ public class Demography extends PersistableObject {
     @DatabaseField(columnName = Columns.MIGRATION_COLUMN, canBeNull = false)
     private long mMigration;
 
-    public Country getCountry() { return mCountry;}
-    public void setCountry(Country country) { mCountry = country; }
+    public Country getCountry() {
+        return mCountry;
+    }
 
-    public int getYear() { return mYear; }
-    public void setYear(int _year) { mYear = _year;  }
+    public void setCountry(Country country) {
+        mCountry = country;
+    }
+
+    public int getYear() {
+        return mYear;
+    }
+
+    public void setYear(int _year) {
+        mYear = _year;
+    }
 
     public double getPopulation() {
         return mPopulation;
     }
+
     public void setPopulation(long _population) {
         mPopulation = _population;
     }
 
-    public double getMigration() { return mMigration; }
+    public double getMigration() {
+        return mMigration;
+    }
+
     public void setMigration(long _migration) {
         mMigration = _migration;
     }

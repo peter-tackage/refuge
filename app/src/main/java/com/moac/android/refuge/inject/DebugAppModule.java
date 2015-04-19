@@ -4,13 +4,11 @@ import android.util.Log;
 
 import com.moac.android.refuge.RefugeApplication;
 import com.moac.android.refuge.activity.MainActivity;
-import com.moac.android.refuge.database.DatabaseHelper;
-import com.moac.android.refuge.database.MockModelService;
-import com.moac.android.refuge.database.ModelService;
+import com.moac.android.refuge.database.MockRefugeeDataStore;
+import com.moac.android.refuge.database.RefugeeDataStore;
 import com.moac.android.refuge.fragment.NavigationDrawerFragment;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
-import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +28,12 @@ public class DebugAppModule {
     }
 
     @Provides
-    @Singleton
-    ModelService provideDatabase() {
+    @Singleton RefugeeDataStore provideDatabase() {
         Log.i(TAG, "Providing debug database");
         return makeMock();
     }
 
-    private MockModelService makeMock() {
+    private MockRefugeeDataStore makeMock() {
         List<Country> countryList = new ArrayList<Country>();
         List<RefugeeFlow> refugeeFlowList = new ArrayList<RefugeeFlow>();
 
@@ -132,14 +129,7 @@ public class DebugAppModule {
             refugeeFlowList.add(mx2es);
         }
 
-        return new MockModelService(countryList, refugeeFlowList);
-    }
-
-    @Provides
-    @Singleton
-    Bus provideEventBus() {
-        Log.i(TAG, "Providing event bus");
-        return new Bus();
+        return new MockRefugeeDataStore(countryList, refugeeFlowList);
     }
 
 }

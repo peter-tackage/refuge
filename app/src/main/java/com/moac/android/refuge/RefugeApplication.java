@@ -6,7 +6,6 @@ import android.app.Fragment;
 import android.util.Log;
 
 import com.moac.android.refuge.inject.AppModule;
-import com.moac.android.refuge.inject.DebugAppModule;
 
 import dagger.ObjectGraph;
 

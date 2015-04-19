@@ -23,12 +23,13 @@ public class Country extends PersistableObject {
     }
 
     // Required by ORMLite
-    public Country() {}
+    public Country() {
+    }
 
     @DatabaseField(columnName = Columns.NAME_COLUMN, unique = true, canBeNull = false)
     private String mName;
 
-    @DatabaseField(columnName = Columns.LONGITUDE_COLUMN , canBeNull = false)
+    @DatabaseField(columnName = Columns.LONGITUDE_COLUMN, canBeNull = false)
     private double mLongitude;
 
     @DatabaseField(columnName = Columns.LATITUDE_COLUMN, canBeNull = false)
@@ -37,14 +38,29 @@ public class Country extends PersistableObject {
     @ForeignCollectionField(eager = false)
     private java.util.Collection<RefugeeFlow> mRefugeeFlows;
 
-    public String getName() { return mName; }
-    public void setName(String _name) { mName = _name; }
+    public String getName() {
+        return mName;
+    }
 
-    public double getLongitude() { return mLongitude;}
-    public void setLongitude(double longitude) { mLongitude = mLongitude; }
+    public void setName(String _name) {
+        mName = _name;
+    }
 
-    public double getLatitude() { return mLatitude; }
-    public void setLatitude(double latitude) { mLatitude = mLatitude; }
+    public double getLongitude() {
+        return mLongitude;
+    }
+
+    public void setLongitude(double longitude) {
+        mLongitude = mLongitude;
+    }
+
+    public double getLatitude() {
+        return mLatitude;
+    }
+
+    public void setLatitude(double latitude) {
+        mLatitude = mLatitude;
+    }
 
     public void setLatLng(double latitude, double longitude) {
         mLongitude = longitude;

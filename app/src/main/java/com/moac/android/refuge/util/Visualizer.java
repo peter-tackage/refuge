@@ -2,14 +2,13 @@ package com.moac.android.refuge.util;
 
 import android.util.Log;
 
-import com.moac.android.refuge.database.ModelService;
-import com.moac.android.refuge.model.Country;
-import com.moac.android.refuge.model.RefugeeFlow;
-
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.moac.android.refuge.database.RefugeeDataStore;
+import com.moac.android.refuge.model.Country;
+import com.moac.android.refuge.model.RefugeeFlow;
 
 import java.util.List;
 import java.util.Map;
@@ -26,40 +25,39 @@ public class Visualizer {
     static final int[] strokeColors = {0xDD0066cc, 0xFFD6B331, 0xDD663399, 0xFFFF6600,
             0xDD669900};
 
-    private Visualizer() { }
+    public static void drawCountries(RefugeeDataStore refugeeDataStore, GoogleMap map, List<Long> countryIds
+            , Map<Long, Integer> colorMap, double scaling) {
+        Log.d(TAG, "drawCountries() - Draw TO countries: " + countryIds);
 
-    public static void drawCountries(ModelService modelService, GoogleMap map, List<Country> countries, Map<Long, Integer> colorMap) {
-            Log.d(TAG, "drawCountries() - Draw TO countries: " + countries);
-            double maxRefugeeFlowTo = 0.0;
-            for (Country country : countries) {
-                maxRefugeeFlowTo = Math.max(maxRefugeeFlowTo, modelService.getTotalRefugeeFlowTo(country.getId()));
-            }
-
-            int colorIndex=0;
-            // Maximum radius is defined
-            for (Country toCountry : countries) {
-                int strokeColor = strokeColors[colorIndex];
-                int fillColor = fillColors[colorIndex];
-                colorMap.put(toCountry.getId(), strokeColor);
-                drawAllFromCircles(modelService, map, toCountry.getId(), strokeColor, maxRefugeeFlowTo);
-                drawToCircle(modelService, map, toCountry.getId(), strokeColor, fillColor, (modelService.getTotalRefugeeFlowTo(toCountry.getId())/maxRefugeeFlowTo));
-                colorIndex++;
-            }
-            Log.d(TAG, "drawCountries() - Calculated maxRefugeeFlowTo: " + maxRefugeeFlowTo);
+        int colorIndex = 0;
+        // Maximum radius is defined
+        for (Long countryId : countryIds) {
+            int strokeColor = strokeColors[colorIndex];
+            int fillColor = fillColors[colorIndex];
+            colorMap.put(countryId, strokeColor);
+            drawAllFromCircles(refugeeDataStore, map, countryId, strokeColor, scaling);
+            drawToCircle(refugeeDataStore,
+                    map,
+                    countryId,
+                    strokeColor, fillColor,
+                    (refugeeDataStore.getTotalRefugeeFlowTo(countryId) / scaling));
+            colorIndex++;
+        }
+        Log.d(TAG, "drawCountries() - Using: " + scaling);
     }
 
-    private static void drawAllFromCircles(ModelService modelService, GoogleMap map, long toCountryId, int strokeColor, double maxCount) {
+    private static void drawAllFromCircles(RefugeeDataStore refugeeDataStore, GoogleMap map, long toCountryId, int strokeColor, double maxCount) {
         Log.d(TAG, "drawAllFromCircles() - toCountryId: " + toCountryId + " toCountryColor: " + strokeColor + " maxFlow: " + maxCount);
-        List<RefugeeFlow> flows = modelService.getRefugeeFlowsTo(toCountryId);
+        List<RefugeeFlow> flows = refugeeDataStore.getRefugeeFlowsTo(toCountryId);
         for (RefugeeFlow flow : flows) {
-            Country fromCountry = modelService.getCountry(flow.getFromCountry().getId());
+            Country fromCountry = refugeeDataStore.getCountry(flow.getFromCountry().getId());
             Log.d(TAG, "drawAllFromCircles() - Drawing flow from: " + fromCountry.getName() + " count: " + flow.getRefugeeCount() + " / " + maxCount);
-            drawScaledCircle(map, fromCountry.getLatLng(), (flow.getRefugeeCount()/maxCount), strokeColor, 0);
+            drawScaledCircle(map, fromCountry.getLatLng(), (flow.getRefugeeCount() / maxCount), strokeColor, 0);
         }
     }
 
-    private static void drawToCircle(ModelService modelService, GoogleMap map, long toCountryId, int strokeColor, int fillColor, double percent) {
-        Country toCountry = modelService.getCountry(toCountryId);
+    private static void drawToCircle(RefugeeDataStore refugeeDataStore, GoogleMap map, long toCountryId, int strokeColor, int fillColor, double percent) {
+        Country toCountry = refugeeDataStore.getCountry(toCountryId);
         drawScaledCircle(map, toCountry.getLatLng(), percent, strokeColor, fillColor);
     }
 
@@ -67,9 +65,9 @@ public class Visualizer {
                                           LatLng coordinates,
                                           double percent,
                                           int strokeColor, int fillColor) {
-        Log.d(TAG, "drawScaledCircle() - percent: " + percent) ;
+        Log.d(TAG, "drawScaledCircle() - percent: " + percent);
         double circleArea = percent * MAX_AREA;
-        double radius = Math.sqrt (circleArea/3.14);
+        double radius = Math.sqrt(circleArea / 3.14);
         Log.d(TAG, "drawScaledCircle() - radius (m): " + radius + " circleArea: " + circleArea + " percent: " + percent + " max Area: " + MAX_AREA);
         CircleOptions circleOptions = new CircleOptions()
                 .center(coordinates)

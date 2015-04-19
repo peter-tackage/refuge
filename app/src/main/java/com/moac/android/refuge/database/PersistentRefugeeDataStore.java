@@ -12,13 +12,13 @@ import com.moac.android.refuge.model.RefugeeFlow;
 import java.sql.SQLException;
 import java.util.List;
 
-public class PersistentModelService implements ModelService {
+public class PersistentRefugeeDataStore implements RefugeeDataStore {
 
-    static final String TAG = PersistentModelService.class.getSimpleName();
+    static final String TAG = PersistentRefugeeDataStore.class.getSimpleName();
 
     private final DatabaseHelper mDbHelper;
 
-    public PersistentModelService(DatabaseHelper helper) {
+    public PersistentRefugeeDataStore(DatabaseHelper helper) {
         mDbHelper = helper;
     }
 
@@ -147,12 +147,12 @@ public class PersistentModelService implements ModelService {
     }
 
     @Override
-    public Country getCountryByName(String query) {
+    public Country getCountry(String countryName) {
         try {
             // Use SelectArg to ensure values are properly escaped
             // Refer - http://ormlite.com/javadoc/ormlite-core/doc-files/ormlite_3.html#index-select-arguments
             SelectArg selectArg = new SelectArg();
-            selectArg.setValue(query);
+            selectArg.setValue(countryName);
             return mDbHelper.getDaoEx(Country.class).queryBuilder().where()
                     .like(Country.Columns.NAME_COLUMN, selectArg)
                     .queryForFirst();
@@ -165,7 +165,7 @@ public class PersistentModelService implements ModelService {
      * Bespoke queries - examples
      */
     private long queryTotalRefugeeFlowTo(long countryId) {
-        String query = "select sum("+ RefugeeFlow.Columns.REFUGEE_COUNT_COLUMN +") from " + RefugeeFlow.TABLE_NAME + " where " + RefugeeFlow.Columns.TO_COUNTRY_COLUMN + " = " + countryId;
+        String query = "select sum(" + RefugeeFlow.Columns.REFUGEE_COUNT_COLUMN + ") from " + RefugeeFlow.TABLE_NAME + " where " + RefugeeFlow.Columns.TO_COUNTRY_COLUMN + " = " + countryId;
         Log.d(TAG, query);
         GenericRawResults<String[]> rawResults;
         try {
@@ -180,7 +180,7 @@ public class PersistentModelService implements ModelService {
     }
 
     private long queryTotalRefugeeFlowFrom(long countryId) {
-        String query = "select sum("+ RefugeeFlow.Columns.REFUGEE_COUNT_COLUMN +") from " + RefugeeFlow.TABLE_NAME + " where " + RefugeeFlow.Columns.FROM_COUNTRY_COLUMN + " = " + countryId;
+        String query = "select sum(" + RefugeeFlow.Columns.REFUGEE_COUNT_COLUMN + ") from " + RefugeeFlow.TABLE_NAME + " where " + RefugeeFlow.Columns.FROM_COUNTRY_COLUMN + " = " + countryId;
         Log.d(TAG, query);
 
         GenericRawResults<String[]> rawResults = null;

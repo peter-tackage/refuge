@@ -13,6 +13,7 @@ public class CountryAdapter extends ArrayAdapter<CountryAdapter.ViewModel> {
 
     public interface ViewModel {
         View getView(Context context, View convertView, ViewGroup parent);
+
         long getId();
     }
 

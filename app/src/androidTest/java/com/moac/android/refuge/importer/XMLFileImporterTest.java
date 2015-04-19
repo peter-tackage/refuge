@@ -1,18 +1,12 @@
 package com.moac.android.refuge.importer;
 
 import android.test.InstrumentationTestCase;
-import android.util.Log;
 
 import com.moac.android.refuge.database.DatabaseHelper;
-import com.moac.android.refuge.database.MockModelService;
-import com.moac.android.refuge.database.ModelService;
-import com.moac.android.refuge.database.PersistentModelService;
-import com.moac.android.refuge.model.Country;
+import com.moac.android.refuge.database.PersistentRefugeeDataStore;
 import com.moac.android.refuge.model.RefugeeFlow;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 /**
  * Created by amelysh on 08/02/14.
@@ -59,7 +53,7 @@ public class XMLFileImporterTest extends InstrumentationTestCase {
         String assetFile = "UNDataExport2012.xml";
         String countriesLongLat = "CountriesLatLong.csv";
         DatabaseHelper databaseHelper = new DatabaseHelper(getInstrumentation().getTargetContext());
-        PersistentModelService persistentModelService = new PersistentModelService(databaseHelper);
+        PersistentRefugeeDataStore persistentModelService = new PersistentRefugeeDataStore(databaseHelper);
         try {
             LoadDataRunnable loadDataRunnable = new LoadDataRunnable(new DataFileImporter(persistentModelService), getInstrumentation().getTargetContext().getAssets().open(assetFile), getInstrumentation().getTargetContext().getAssets().open(countriesLongLat));
             loadDataRunnable.run();

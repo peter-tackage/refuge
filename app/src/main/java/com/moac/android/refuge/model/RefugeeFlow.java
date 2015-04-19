@@ -6,7 +6,7 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = RefugeeFlow.TABLE_NAME)
 public class RefugeeFlow extends PersistableObject {
 
-    public static final String TABLE_NAME =  "refugeeFlows";
+    public static final String TABLE_NAME = "refugeeFlows";
 
     public static interface Columns extends PersistableObject.Columns {
         public static final String FROM_COUNTRY_COLUMN = "FROM_COUNTRY";
@@ -21,7 +21,8 @@ public class RefugeeFlow extends PersistableObject {
     }
 
     // Required by ORMLite
-    public RefugeeFlow() {}
+    public RefugeeFlow() {
+    }
 
     @DatabaseField(columnName = Columns.FROM_COUNTRY_COLUMN, foreign = true, canBeNull = false)
     private Country mFromCountry;
@@ -35,13 +36,28 @@ public class RefugeeFlow extends PersistableObject {
     @DatabaseField(columnName = Columns.REFUGEE_COUNT_COLUMN, canBeNull = false)
     private long mRefugeeCount;
 
-    public Country getFromCountry() { return mFromCountry; }
-    public Country getToCountry() { return mToCountry; }
+    public Country getFromCountry() {
+        return mFromCountry;
+    }
 
-    public int getYear() { return mYear; }
-    public void setYear(int _year) { mYear = _year; }
+    public Country getToCountry() {
+        return mToCountry;
+    }
 
-    public long getRefugeeCount() { return mRefugeeCount; }
-    public void setRefugeeCount(long _refugeCount) { mRefugeeCount = _refugeCount; }
+    public int getYear() {
+        return mYear;
+    }
+
+    public void setYear(int _year) {
+        mYear = _year;
+    }
+
+    public long getRefugeeCount() {
+        return mRefugeeCount;
+    }
+
+    public void setRefugeeCount(long _refugeCount) {
+        mRefugeeCount = _refugeCount;
+    }
 
 }

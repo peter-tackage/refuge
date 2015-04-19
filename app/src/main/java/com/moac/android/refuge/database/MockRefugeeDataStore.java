@@ -7,13 +7,13 @@ import com.moac.android.refuge.model.RefugeeFlow;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MockModelService implements ModelService {
+public class MockRefugeeDataStore implements RefugeeDataStore {
 
     List<Country> mCountries;
     List<RefugeeFlow> mFlows;
 
-    public MockModelService(List<Country> countrys,
-                            List<RefugeeFlow> fLows) {
+    public MockRefugeeDataStore(List<Country> countrys,
+                                List<RefugeeFlow> fLows) {
         mCountries = countrys;
         mFlows = fLows;
     }
@@ -143,9 +143,9 @@ public class MockModelService implements ModelService {
     }
 
     @Override
-    public Country getCountryByName(String query) {
+    public Country getCountry(String countryName) {
         for (Country country : mCountries) {
-            if (country.getName().equalsIgnoreCase(query)) {
+            if (country.getName().equalsIgnoreCase(countryName)) {
                 return country;
             }
         }

@@ -7,32 +7,27 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.moac.android.refuge.R;
-import com.moac.android.refuge.model.Country;
 
-public class CountryViewModel implements CountryAdapter.ViewModel {
+public class CountryViewBinder implements RxCountryAdapter.ViewModelBinder {
 
-    private final long mTotalIntake;
-    private final Country mCountry;
-    private final int mColor;
+    private final int resourceId;
 
-    public CountryViewModel(Country country, int color, long totalIntake) {
-        mCountry = country;
-        mTotalIntake = totalIntake;
-        mColor = color;
+    public CountryViewBinder(int resourceId) {
+        this.resourceId = resourceId;
     }
 
     @Override
-    public View getView(Context context, View convertView, ViewGroup parent) {
+    public View getView(Context context, View convertView, ViewGroup parent, final RxCountryViewModel item) {
         View view = convertView;
         TextView countryNameTextView;
         TextView totalIntakeTextView;
-        View colorIndicatorView;
+        final View colorIndicatorView;
 
         if (view == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.country_info_row, parent, false);
+            view = LayoutInflater.from(context).inflate(resourceId, parent, false);
             countryNameTextView = (TextView) view.findViewById(R.id.country_name_textView);
             totalIntakeTextView = (TextView) view.findViewById(R.id.total_intake_textView);
-            colorIndicatorView = (View) view.findViewById(R.id.country_item_check_indicator);
+            colorIndicatorView = view.findViewById(R.id.country_item_check_indicator);
             view.setTag(R.id.country_name_textView, countryNameTextView);
             view.setTag(R.id.total_intake_textView, totalIntakeTextView);
             view.setTag(R.id.country_item_check_indicator, colorIndicatorView);
@@ -42,15 +37,9 @@ public class CountryViewModel implements CountryAdapter.ViewModel {
             colorIndicatorView = (View) view.getTag(R.id.country_item_check_indicator);
         }
 
-        countryNameTextView.setText(mCountry.getName());
-        totalIntakeTextView.setText(String.valueOf(mTotalIntake));
-        colorIndicatorView.setBackgroundColor(mColor);
-
+        countryNameTextView.setText(item.getCountryName());
+        totalIntakeTextView.setText(String.valueOf(item.getTotalIntake()));
+        colorIndicatorView.setBackgroundColor(item.getColor());
         return view;
-    }
-
-    @Override
-    public long getId() {
-        return mCountry.getId();
     }
 }

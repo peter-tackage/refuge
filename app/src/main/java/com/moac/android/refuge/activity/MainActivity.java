@@ -1,43 +1,46 @@
 package com.moac.android.refuge.activity;
 
-import android.app.Activity;
-;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.moac.android.refuge.RefugeApplication;
-import com.moac.android.refuge.database.ModelService;
-import com.moac.android.refuge.fragment.NavigationDrawerFragment;
 import com.moac.android.refuge.R;
+import com.moac.android.refuge.RefugeApplication;
+import com.moac.android.refuge.database.RefugeeDataStore;
+import com.moac.android.refuge.fragment.NavigationDrawerFragment;
 import com.moac.android.refuge.importer.DataFileImporter;
 import com.moac.android.refuge.importer.LoadDataRunnable;
 import com.moac.android.refuge.model.Country;
-import com.moac.android.refuge.event.MapClearedEvent;
+import com.moac.android.refuge.model.DisplayedStore;
 import com.moac.android.refuge.util.DoOnce;
 import com.moac.android.refuge.util.Visualizer;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Produce;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+
+import rx.Observable;
+import rx.functions.Action1;
+
+;
 
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
@@ -53,14 +56,11 @@ public class MainActivity extends Activity
     private NavigationDrawerFragment mNavigationDrawerFragment;
 
     @Inject
-    ModelService mModelService;
+    RefugeeDataStore mRefugeeDataStore;
 
-    @Inject
-    Bus mBus;
-
-    private GoogleMap mMap;
+    private GoogleMap mMapFragment;
     private SearchView mSearchView;
-    private ArrayList<Country> mDisplayedCountries = new ArrayList<Country>();
+    private DisplayedStore mDisplayedCountriesStore;
     private Map<Long, Integer> mColorMap = new HashMap<Long, Integer>();
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -71,7 +71,7 @@ public class MainActivity extends Activity
         setContentView(R.layout.activity_main);
 
         RefugeApplication.from(this).inject(this);
-        mDisplayedCountries = initCountryList(savedInstanceState);
+        mDisplayedCountriesStore = new DisplayedStore();
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
 
@@ -102,8 +102,8 @@ public class MainActivity extends Activity
         getActionBar().setHomeButtonEnabled(true);
 
 
-        // Get a handle to the Map Fragment
-        mMap = ((MapFragment) getFragmentManager()
+        // Get a reference to the Map Fragment
+        mMapFragment = ((MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map)).getMap();
 
         // We are using single top mode, so this will not contain
@@ -111,18 +111,17 @@ public class MainActivity extends Activity
         // Activity - instead see onNewIntent()
         handleIntent(getIntent());
 
+        // TODO This should be cleaned up. Import pre-populated or do in background
         String assetFile = "UNDataExport2012.xml";
         String countriesLatLongFile = "CountriesLatLong.csv";
 
         try {
-            boolean attemptedToLoad = DoOnce.doOnce(this, LOAD_DATA_TASK_TAG, new LoadDataRunnable(new DataFileImporter(mModelService), getAssets().open(assetFile), getAssets().open(countriesLatLongFile)));
+            boolean attemptedToLoad = DoOnce.doOnce(this, LOAD_DATA_TASK_TAG, new LoadDataRunnable(new DataFileImporter(mRefugeeDataStore), getAssets().open(assetFile), getAssets().open(countriesLatLongFile)));
             Log.i(TAG, "Attempted to load data: " + attemptedToLoad);
         } catch (IOException e) {
             Log.e(TAG, "Failed to open the data file: " + assetFile, e);
             finish();
         }
-
-        Visualizer.drawCountries(mModelService, mMap, mDisplayedCountries, mColorMap);
 
     }
 
@@ -139,35 +138,46 @@ public class MainActivity extends Activity
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    private ArrayList<Country> initCountryList(Bundle savedInstanceState) {
-        ArrayList<Country> result = new ArrayList<Country>();
+    private Observable<List<Long>> initCountryList(Bundle savedInstanceState) {
+        List<Long> countryIdList = new ArrayList<Long>(); //Collections.<Long>emptyList();
         if (savedInstanceState != null) {
             long[] countryIds = savedInstanceState.getLongArray(DISPLAYED_COUNTRIES_KEY);
             if (countryIds != null) {
                 for (long id : countryIds) {
-                    result.add(mModelService.getCountry(id));
+                    countryIdList.add(id);
                 }
+                return Observable.just(countryIdList);
             }
         }
-        return result;
+        return Observable.empty();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mBus.unregister(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mBus.register(this);
+        mDisplayedCountriesStore.getDisplayedCountries().subscribe(new Action1<List<Long>>() {
+            @Override
+            public void call(List<Long> countryIds) {
+                mMapFragment.clear();
+                double scaling = 0.0;
+                // TODO This should be moved to background
+                for (Long id : countryIds) {
+                    // TODO Surely there's a build-in function for this
+                    scaling = Math.max(scaling, mRefugeeDataStore.getTotalRefugeeFlowTo(id));
+                }
+                Visualizer.drawCountries(mRefugeeDataStore, mMapFragment, countryIds, mColorMap, scaling);
+            }
+        });
     }
 
     @Override
     public void onCountryItemSelected(long countryId, boolean isSelected) {
-        // updateCountry the main content by replacing fragments
-        // FIXME
+        // TODO
     }
 
     public void restoreActionBar() {
@@ -221,9 +231,7 @@ public class MainActivity extends Activity
         if (id == R.id.action_about) {
             return true;
         } else if (id == R.id.action_clear) {
-            mDisplayedCountries.clear();
-            mMap.clear();
-            produceClearMapEvent();
+            mDisplayedCountriesStore.clear();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -238,58 +246,51 @@ public class MainActivity extends Activity
     private void handleIntent(Intent _intent) {
         if (Intent.ACTION_SEARCH.equals(_intent.getAction())) {
             String query = _intent.getStringExtra(SearchManager.QUERY).trim();
-            if (mDisplayedCountries.size() == 5) {
-                Toast.makeText(this, "Displaying max number of countries on map.", Toast.LENGTH_SHORT).show();
-                // add more colors!
-                return;
-            }
-            Country country = mModelService.getCountryByName(query);
+            // TODO Enforce limits some how
+//            if (mDisplayedCountriesStore. == 5) {
+//                Toast.makeText(this, "Displaying max number of countries on map.", Toast.LENGTH_SHORT).show();
+//                // add more colors!
+//                return;
+//            }
+            Country country = mRefugeeDataStore.getCountry(query);
             if (country != null) {
-                showCountry(country);
+                addCountry(country);
             } else {
                 Toast.makeText(this, "Country not found", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    private void showCountry(Country country) {
-        mDisplayedCountries.add(country);
-        mMap.clear();
-        Visualizer.drawCountries(mModelService, mMap, mDisplayedCountries, mColorMap);
-        produceCountriesChangedEvent();
+    private void addCountry(Country country) {
+        // TODO Add to Observable
+        mDisplayedCountriesStore.add(country.getId());
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(final Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (mDisplayedCountries.size() > 0) {
-            long[] displayedCountries = new long[mDisplayedCountries.size()];
-            for (int i = 0; i < mDisplayedCountries.size(); i++) {
-                displayedCountries[i] = mDisplayedCountries.get(i).getId();
-            }
-            outState.putLongArray(DISPLAYED_COUNTRIES_KEY, displayedCountries);
-        }
-
-    }
-
-    @Produce
-    public ArrayList<Country> produceCountriesChangedEvent() {
-        return mDisplayedCountries;
-    }
-
-    @Produce
-    public MapClearedEvent produceClearMapEvent() {
-        Log.i(TAG, "Sending produceClearMapEvent");
-        return new MapClearedEvent();
+        // TODO
+//        if (mDisplayedCountriesStore != null) {
+//            long[] displayedCountries = new long[mDisplayedCountriesStore.size()];
+//            for (int i = 0; i < mDisplayedCountriesStore.size(); i++) {
+//                displayedCountries[i] = mDisplayedCountriesStore.get(i);
+//            }
+//            outState.putLongArray(DISPLAYED_COUNTRIES_KEY, displayedCountries);
+//        }
     }
 
     @Override
-    public ArrayList<Country> getDisplayedCountries() {
-        return mDisplayedCountries;
+    public Observable<List<Long>> getDisplayedCountries() {
+        return mDisplayedCountriesStore.getDisplayedCountries();
     }
 
     @Override
     public Map<Long, Integer> getColorMap() {
         return mColorMap;
+    }
+
+    @Override
+    public RefugeeDataStore getRefugeeDataStore() {
+        return mRefugeeDataStore;
     }
 }

@@ -6,7 +6,7 @@ import com.moac.android.refuge.model.RefugeeFlow;
 
 import java.util.List;
 
-public interface ModelService {
+public interface RefugeeDataStore {
 
     /*
      * Country
@@ -58,5 +58,5 @@ public interface ModelService {
 
     List<RefugeeFlow> getRefugeeFlowsTo(long countryId);
 
-    Country getCountryByName(String query);
+    Country getCountry(String countryName);
 }

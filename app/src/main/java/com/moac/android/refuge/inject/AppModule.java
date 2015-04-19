@@ -5,10 +5,9 @@ import android.util.Log;
 import com.moac.android.refuge.RefugeApplication;
 import com.moac.android.refuge.activity.MainActivity;
 import com.moac.android.refuge.database.DatabaseHelper;
-import com.moac.android.refuge.database.ModelService;
-import com.moac.android.refuge.database.PersistentModelService;
+import com.moac.android.refuge.database.PersistentRefugeeDataStore;
+import com.moac.android.refuge.database.RefugeeDataStore;
 import com.moac.android.refuge.fragment.NavigationDrawerFragment;
-import com.squareup.otto.Bus;
 
 import javax.inject.Singleton;
 
@@ -25,18 +24,11 @@ public class AppModule {
     }
 
     @Provides
-    @Singleton
-    ModelService provideDatabase() {
+    @Singleton RefugeeDataStore provideDatabase() {
         Log.i(TAG, "Providing database");
         DatabaseHelper databaseHelper = new DatabaseHelper(mApplication);
-        return new PersistentModelService(databaseHelper);
+        return new PersistentRefugeeDataStore(databaseHelper);
     }
 
-    @Provides
-    @Singleton
-    Bus provideEventBus() {
-        Log.i(TAG, "Providing event bus");
-        return new Bus();
-    }
 }
 

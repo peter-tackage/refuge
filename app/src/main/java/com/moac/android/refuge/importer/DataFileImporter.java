@@ -1,6 +1,6 @@
 package com.moac.android.refuge.importer;
 
-import com.moac.android.refuge.database.ModelService;
+import com.moac.android.refuge.database.RefugeeDataStore;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
 
@@ -34,11 +34,11 @@ public class DataFileImporter {
     static final String REFUGEE_NUM_TAG = "Refugees<sup>*</sup>";
 
     public RefugeeFlow refugeeFlow;
-    private ModelService mModelService;
-    private  HashMap<String, Country>countriesMap;
+    private RefugeeDataStore mRefugeeDataStore;
+    private HashMap<String, Country> countriesMap;
 
-    public DataFileImporter(ModelService modelService) {
-        mModelService = modelService;
+    public DataFileImporter(RefugeeDataStore refugeeDataStore) {
+        mRefugeeDataStore = refugeeDataStore;
         countriesMap = new HashMap<String, Country>();
     }
 
@@ -46,62 +46,64 @@ public class DataFileImporter {
 
         try {
 
-        parseCountriesLatLong(countriesLatLongInputStream);
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.parse(UNDataInputStream);
+            parseCountriesLatLong(countriesLatLongInputStream);
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(UNDataInputStream);
 
-        Country fromCountry;
-        Country toCountry;
-        int year;
-        long refugeeNum;
+            Country fromCountry;
+            Country toCountry;
+            int year;
+            long refugeeNum;
 
-        NodeList nodeList = document.getDocumentElement().getChildNodes();
+            NodeList nodeList = document.getDocumentElement().getChildNodes();
 
-        for (int i = 0; i < nodeList.getLength(); i++) {
+            for (int i = 0; i < nodeList.getLength(); i++) {
 
-            //We have encountered an <record> tag, let's reset everything to make sure
-            fromCountry = toCountry = null;
-            refugeeNum = -1;
-            year = -1;
+                //We have encountered an <record> tag, let's reset everything to make sure
+                fromCountry = toCountry = null;
+                refugeeNum = -1;
+                year = -1;
 
-            Node recordNode = nodeList.item(i);
-            if (recordNode instanceof Element) {
-                NodeList childNodes = recordNode.getChildNodes();
-                for (int j = 0; j < childNodes.getLength(); j++) {
-                    Node fieldNode = childNodes.item(j);
-                    if (fieldNode instanceof  Element) {
-                        String fieldNameValue =  fieldNode.getAttributes().getNamedItem(NAME_ATTRIBUTE_TAG).getNodeValue();
-                        if (fieldNameValue.equals(FROM_COUNTRY_TAG)) {
-                            String content = fieldNode.getLastChild().getTextContent().trim();
-                            fromCountry = getLatLong(content);
-                        }
-                        else if (fieldNameValue.equals(TO_COUNTRY_TAG)) {
-                            String content = fieldNode.getLastChild().getTextContent().trim();
-                            toCountry = getLatLong(content);
-                        }
-                        else if (fieldNameValue.equals(YEAR_TAG)) {
-                            String content = fieldNode.getLastChild().getTextContent().trim();
-                            year = Integer.parseInt(content);
-                        }
-                        else if (fieldNameValue.equals(REFUGEE_NUM_TAG)) {
-                            String content = fieldNode.getLastChild().getTextContent().trim();
-                            refugeeNum = Long.parseLong(content);
+                Node recordNode = nodeList.item(i);
+                if (recordNode instanceof Element) {
+                    NodeList childNodes = recordNode.getChildNodes();
+                    for (int j = 0; j < childNodes.getLength(); j++) {
+                        Node fieldNode = childNodes.item(j);
+                        if (fieldNode instanceof Element) {
+                            String fieldNameValue = fieldNode.getAttributes().getNamedItem(NAME_ATTRIBUTE_TAG).getNodeValue();
+                            switch (fieldNameValue) {
+                                case FROM_COUNTRY_TAG: {
+                                    String content = fieldNode.getLastChild().getTextContent().trim();
+                                    fromCountry = getLatLong(content);
+                                    break;
+                                }
+                                case TO_COUNTRY_TAG: {
+                                    String content = fieldNode.getLastChild().getTextContent().trim();
+                                    toCountry = getLatLong(content);
+                                    break;
+                                }
+                                case YEAR_TAG: {
+                                    String content = fieldNode.getLastChild().getTextContent().trim();
+                                    year = Integer.parseInt(content);
+                                    break;
+                                }
+                                case REFUGEE_NUM_TAG: {
+                                    String content = fieldNode.getLastChild().getTextContent().trim();
+                                    refugeeNum = Long.parseLong(content);
+                                    break;
+                                }
+                            }
                         }
                     }
+                    // we have all our data for the Record node, let's build our RefugeeFlow and insert in DB
+                    refugeeFlow = new RefugeeFlow(fromCountry, toCountry);
+                    refugeeFlow.setYear(year);
+                    refugeeFlow.setRefugeeCount(refugeeNum);
+                    mRefugeeDataStore.createRefugeeFlow(refugeeFlow);
                 }
-                // we have all our data for the Record node, let's build our RefugeeFlow and insert in DB
-                refugeeFlow = new RefugeeFlow(fromCountry, toCountry);
-                refugeeFlow.setYear(year);
-                refugeeFlow.setRefugeeCount(refugeeNum);
-                mModelService.createRefugeeFlow(refugeeFlow);
             }
-        }
-        } catch (ParserConfigurationException e) {
-            throw new FileImportException(e);
-        } catch (SAXException e) {
-            throw new FileImportException(e);
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new FileImportException(e);
         }
     }
@@ -114,16 +116,15 @@ public class DataFileImporter {
             String[] rowData = line.split(",");
             Country country = new Country(rowData[0], Double.parseDouble(rowData[1]), Double.parseDouble(rowData[2]));
             countriesMap.put(rowData[0], country);
-            mModelService.createCountry(country);
+            mRefugeeDataStore.createCountry(country);
         }
     }
 
     private Country getLatLong(String country) throws FileImportException {
         country = country.toUpperCase();
         if (countriesMap.containsKey(country)) {
-            return (Country) countriesMap.get(country);
-        }
-        else {
+            return countriesMap.get(country);
+        } else {
             throw new FileImportException(new Exception("Country not found: " + country));
         }
     }
