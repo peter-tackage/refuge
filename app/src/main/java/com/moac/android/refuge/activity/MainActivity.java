@@ -81,10 +81,6 @@ public class MainActivity extends AppCompatActivity
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
                 toolbar, R.string.open_drawer_hint, R.string.close_drawer_hint) {
 
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-            }
-
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 searchView.setIconified(true);
@@ -154,7 +150,8 @@ public class MainActivity extends AppCompatActivity
         // TODO
     }
 
-    @Override public boolean onCreateOptionsMenu(Menu menu) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
@@ -177,24 +174,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
-        // Pass the event to ActionBarDrawerToggle, if it returns
-        // true, then it has handled the app icon touch event
-        if (drawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
         int id = item.getItemId();
-        if (id == R.id.action_about) {
-            return true;
-        } else if (id == R.id.action_clear) {
-            displayedCountriesStore.clear();
-            return true;
+        switch (id) {
+            case R.id.action_about:
+                return true;
+            case R.id.action_clear:
+                displayedCountriesStore.clear();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.moac.android.refuge.fragment;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -30,36 +31,18 @@ import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
-/**
- * Fragment used for managing interactions for and presentation of a navigation drawer.
- * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
- * design guidelines</a> for a complete explanation of the behaviors implemented here.
- */
 public class NavigationDrawerFragment extends android.support.v4.app.Fragment {
 
     private static final String TAG = NavigationDrawerFragment.class.getSimpleName();
     private NavigationDrawerCallbacks callbacks;
 
     private ActionBarDrawerToggle drawerToggle;
-    private DrawerLayout drawerLayout;
-
     private View fragmentContainerView;
     private ListView drawerListView;
     private List<RxCountryViewModel> viewModels = Collections.emptyList();
 
     private FragmentContainer fragmentContainer;
-    private Subscription displayCountrySub;
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        // Indicate that this fragment would like to influence the set of actions in the action bar.
-        setHasOptionsMenu(true);
-
-        // Inject dependencies
-        RefugeApplication.from(this).inject(this);
-
-    }
+    private Subscription displayCountrySubscription;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -83,9 +66,16 @@ public class NavigationDrawerFragment extends android.support.v4.app.Fragment {
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // Inject dependencies
+        RefugeApplication.from(this).inject(this);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-        displayCountrySub = fragmentContainer.getDisplayedCountries()
+        displayCountrySubscription = fragmentContainer.getDisplayedCountries()
                 .map(new Func1<List<Long>, List<RxCountryViewModel>>() {
                     @Override
                     public List<RxCountryViewModel> call(List<Long> countryIds) {
@@ -107,13 +97,9 @@ public class NavigationDrawerFragment extends android.support.v4.app.Fragment {
 
     @Override
     public void onPause() {
-        displayCountrySub.unsubscribe();
+        displayCountrySubscription.unsubscribe();
         unsubscribeViewModels();
         super.onPause();
-    }
-
-    public boolean isDrawerOpen() {
-        return drawerLayout != null && drawerLayout.isDrawerOpen(fragmentContainerView);
     }
 
     /**
@@ -124,14 +110,13 @@ public class NavigationDrawerFragment extends android.support.v4.app.Fragment {
      */
     public void setUp(int fragmentId, DrawerLayout drawerLayout, Toolbar toolbar) {
         fragmentContainerView = getActivity().findViewById(fragmentId);
-        this.drawerLayout = drawerLayout;
 
         // set a custom shadow that overlays the main content when the drawer opens
-        this.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
         drawerToggle = new ActionBarDrawerToggle(
                 getActivity(),
-                NavigationDrawerFragment.this.drawerLayout,
+                drawerLayout,
                 toolbar,
                 R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close) {
@@ -155,13 +140,13 @@ public class NavigationDrawerFragment extends android.support.v4.app.Fragment {
         };
 
         // Defer code dependent on restoration of previous instance state.
-        this.drawerLayout.post(new Runnable() {
+        drawerLayout.post(new Runnable() {
             @Override
             public void run() {
                 drawerToggle.syncState();
             }
         });
-        this.drawerLayout.setDrawerListener(drawerToggle);
+        drawerLayout.setDrawerListener(drawerToggle);
     }
 
     @Override
@@ -185,13 +170,9 @@ public class NavigationDrawerFragment extends android.support.v4.app.Fragment {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        // Forward the new configuration the drawer toggle component.
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
-    /**
-     * Callbacks interface that all activities using this fragment must implement.
-     */
     public static interface NavigationDrawerCallbacks {
         /**
          * Called when an item in the navigation drawer is selected.
