@@ -1,6 +1,5 @@
 package com.moac.android.refuge.activity;
 
-import android.app.ActionBar;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +32,6 @@ import com.moac.android.refuge.util.DoOnce;
 import com.moac.android.refuge.util.Visualizer;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +56,7 @@ public class MainActivity extends AppCompatActivity
     private GoogleMap mapFragment;
     private SearchView searchView;
     private DisplayedStore displayedCountriesStore;
-    private Map<Long, Integer> colorMap = new HashMap<Long, Integer>();
+    private Map<Long, Integer> colorMap = new HashMap<>();
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
 
@@ -83,32 +81,23 @@ public class MainActivity extends AppCompatActivity
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
                 toolbar, R.string.open_drawer_hint, R.string.close_drawer_hint) {
 
-            /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
-            /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                searchView.setIconified(true);
             }
         };
 
         // Set the drawer toggle as the DrawerListener
         drawerLayout.setDrawerListener(drawerToggle);
-        //   getActionBar().setDisplayHomeAsUpEnabled(true);
-        //   getActionBar().setHomeButtonEnabled(true);
-
 
         // Get a reference to the Map Fragment
         mapFragment = ((MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map)).getMap();
 
-        // We are using single top mode, so this will not contain
-        // search intents as the SearchView is operating on its host
-        // Activity - instead see onNewIntent()
         handleIntent(getIntent());
 
         // TODO This should be cleaned up. Import pre-populated or do in background
@@ -128,7 +117,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
         drawerToggle.syncState();
     }
 
@@ -136,20 +124,6 @@ public class MainActivity extends AppCompatActivity
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         drawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    private Observable<List<Long>> initCountryList(Bundle savedInstanceState) {
-        List<Long> countryIdList = new ArrayList<Long>(); //Collections.<Long>emptyList();
-        if (savedInstanceState != null) {
-            long[] countryIds = savedInstanceState.getLongArray(DISPLAYED_COUNTRIES_KEY);
-            if (countryIds != null) {
-                for (long id : countryIds) {
-                    countryIdList.add(id);
-                }
-                return Observable.just(countryIdList);
-            }
-        }
-        return Observable.empty();
     }
 
     @Override
@@ -180,43 +154,25 @@ public class MainActivity extends AppCompatActivity
         // TODO
     }
 
-//    public void restoreActionBar() {
-//        ActionBar actionBar = getActionBar();
-//        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-//        actionBar.setDisplayShowTitleEnabled(true);
-//        actionBar.setTitle(R.string.app_name);
-//    }
+    @Override public boolean onCreateOptionsMenu(Menu menu) {
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if (!navigationDrawerFragment.isDrawerOpen()) {
-//            // Only show items in the action bar relevant to this screen
-//            // if the drawer is not showing. Otherwise, let the drawer
-//            // decide what to show in the action bar.
-//            getMenuInflater().inflate(R.menu.main, menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
 
-            // Inflate the options menu from XML
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.main, menu);
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(true);
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (v == searchView && !hasFocus) searchView.setIconified(true);
+            }
+        });
 
-            // Get the SearchView and set the searchable configuration
-            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-            MenuItem searchItem = menu.findItem(R.id.action_search);
-            searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-            searchView.setIconifiedByDefault(true);
-            searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    if (v == searchView && !hasFocus) searchView.setIconified(true);
-                }
-            });
-
-           // restoreActionBar();
-            return true;
-        }
-
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override
@@ -242,14 +198,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onNewIntent(Intent _intent) {
+    protected void onNewIntent(Intent intent) {
         Log.i(TAG, "onNewIntent - received intent");
-        handleIntent(_intent);
+        handleIntent(intent);
     }
 
-    private void handleIntent(Intent _intent) {
-        if (Intent.ACTION_SEARCH.equals(_intent.getAction())) {
-            String query = _intent.getStringExtra(SearchManager.QUERY).trim();
+    private void handleIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY).trim();
             // TODO Enforce limits some how
 //            if (displayedCountriesStore. == 5) {
 //                Toast.makeText(this, "Displaying max number of countries on map.", Toast.LENGTH_SHORT).show();
@@ -266,21 +222,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void addCountry(Country country) {
-        // TODO Add to Observable
         displayedCountriesStore.add(country.getId());
-    }
-
-    @Override
-    protected void onSaveInstanceState(final Bundle outState) {
-        super.onSaveInstanceState(outState);
-        // TODO
-//        if (displayedCountriesStore != null) {
-//            long[] displayedCountries = new long[displayedCountriesStore.size()];
-//            for (int i = 0; i < displayedCountriesStore.size(); i++) {
-//                displayedCountries[i] = displayedCountriesStore.get(i);
-//            }
-//            outState.putLongArray(DISPLAYED_COUNTRIES_KEY, displayedCountries);
-//        }
     }
 
     @Override
