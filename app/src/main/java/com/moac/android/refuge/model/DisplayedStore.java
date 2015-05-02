@@ -10,8 +10,8 @@ import rx.subjects.Subject;
 
 public class DisplayedStore {
 
-    List<Long> ids = new ArrayList<>();
-    Subject<List<Long>, List<Long>> subject = BehaviorSubject.create();
+    private List<Long> ids = new ArrayList<>();
+    private Subject<List<Long>, List<Long>> subject = BehaviorSubject.create();
 
     public Observable<List<Long>> getDisplayedCountries() {
         return subject;

@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- App colors -->
+
+    <color name="colorPrimary">#2196f3</color>
+    <color name="colorPrimaryDark">#1976d2</color>
+    <color name="colorAccent">#FFFFFF</color>
+
+    <!-- Country colors -->
+
     <color name="yellow">#66D6B331</color>
     <color name="yellowStroke">#FFD6B331</color>
 

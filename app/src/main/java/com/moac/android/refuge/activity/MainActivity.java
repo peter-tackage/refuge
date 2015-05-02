@@ -90,9 +90,10 @@ public class MainActivity extends AppCompatActivity
         // Set the drawer toggle as the DrawerListener
         drawerLayout.setDrawerListener(drawerToggle);
 
-        // Get a reference to the Map Fragment
+        // Initialise map
         mapFragment = ((MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map)).getMap();
+        mapFragment.getUiSettings().setZoomControlsEnabled(true);
 
         handleIntent(getIntent());
 
@@ -177,7 +178,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.action_about:
-                return true;
+                return false;
             case R.id.action_clear:
                 displayedCountriesStore.clear();
                 return true;
