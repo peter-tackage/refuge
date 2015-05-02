@@ -16,59 +16,46 @@ public class Country extends PersistableObject {
         public static final String LATITUDE_COLUMN = "LATITUDE";
     }
 
+    @DatabaseField(columnName = Columns.NAME_COLUMN, unique = true, canBeNull = false)
+    private String name;
+
+    @DatabaseField(columnName = Columns.LONGITUDE_COLUMN, canBeNull = false)
+    private double longitude;
+
+    @DatabaseField(columnName = Columns.LATITUDE_COLUMN, canBeNull = false)
+    private double latitude;
+
+    @ForeignCollectionField(eager = false)
+    private java.util.Collection<RefugeeFlow> mRefugeeFlows;
+
     public Country(String name, Double latitude, Double longitude) {
-        mName = name;
-        mLatitude = latitude;
-        mLongitude = longitude;
+        this.name = name;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     // Required by ORMLite
     public Country() {
     }
 
-    @DatabaseField(columnName = Columns.NAME_COLUMN, unique = true, canBeNull = false)
-    private String mName;
-
-    @DatabaseField(columnName = Columns.LONGITUDE_COLUMN, canBeNull = false)
-    private double mLongitude;
-
-    @DatabaseField(columnName = Columns.LATITUDE_COLUMN, canBeNull = false)
-    private double mLatitude;
-
-    @ForeignCollectionField(eager = false)
-    private java.util.Collection<RefugeeFlow> mRefugeeFlows;
-
     public String getName() {
-        return mName;
+        return name;
     }
 
-    public void setName(String _name) {
-        mName = _name;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public double getLongitude() {
-        return mLongitude;
-    }
-
-    public void setLongitude(double longitude) {
-        mLongitude = mLongitude;
+        return longitude;
     }
 
     public double getLatitude() {
-        return mLatitude;
-    }
-
-    public void setLatitude(double latitude) {
-        mLatitude = mLatitude;
-    }
-
-    public void setLatLng(double latitude, double longitude) {
-        mLongitude = longitude;
-        mLatitude = latitude;
+        return latitude;
     }
 
     public LatLng getLatLng() {
-        return new LatLng(mLatitude, mLongitude);
+        return new LatLng(latitude, longitude);
     }
 
 }

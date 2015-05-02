@@ -21,10 +21,10 @@ import dagger.Provides;
 public class DebugAppModule {
     private static final String TAG = DebugAppModule.class.getSimpleName();
 
-    private final RefugeApplication mApplication;
+    private final RefugeApplication application;
 
     public DebugAppModule(RefugeApplication application) {
-        mApplication = application;
+        this.application = application;
     }
 
     @Provides

@@ -11,14 +11,14 @@ import com.moac.android.refuge.model.Country;
 
 public class CountryViewModel implements CountryAdapter.ViewModel {
 
-    private final long mTotalIntake;
-    private final Country mCountry;
-    private final int mColor;
+    private final long totalIntake;
+    private final Country country;
+    private final int color;
 
     public CountryViewModel(Country country, int color, long totalIntake) {
-        mCountry = country;
-        mTotalIntake = totalIntake;
-        mColor = color;
+        this.country = country;
+        this.totalIntake = totalIntake;
+        this.color = color;
     }
 
     @Override
@@ -42,15 +42,15 @@ public class CountryViewModel implements CountryAdapter.ViewModel {
             colorIndicatorView = (View) view.getTag(R.id.country_item_check_indicator);
         }
 
-        countryNameTextView.setText(mCountry.getName());
-        totalIntakeTextView.setText(String.valueOf(mTotalIntake));
-        colorIndicatorView.setBackgroundColor(mColor);
+        countryNameTextView.setText(country.getName());
+        totalIntakeTextView.setText(String.valueOf(totalIntake));
+        colorIndicatorView.setBackgroundColor(color);
 
         return view;
     }
 
     @Override
     public long getId() {
-        return mCountry.getId();
+        return country.getId();
     }
 }

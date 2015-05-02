@@ -15,14 +15,15 @@ import java.util.Map;
 
 public class Visualizer {
 
+    private static final String TAG = Visualizer.class.getSimpleName();
+
     private static final long MAX_RADIUS = 1500000; // 1500 kms
     private static final double MAX_AREA = 3.14 * MAX_RADIUS * MAX_RADIUS;
-    static final String TAG = Visualizer.class.getSimpleName();
 
-    static final int[] fillColors = {0x660066cc, 0x66D6B331, 0x66663399, 0x55FF6600,
+    private static final int[] FILL_COLORS = {0x660066cc, 0x66D6B331, 0x66663399, 0x55FF6600,
             0x66669900};
 
-    static final int[] strokeColors = {0xDD0066cc, 0xFFD6B331, 0xDD663399, 0xFFFF6600,
+    private static final int[] STROKE_COLORS = {0xDD0066cc, 0xFFD6B331, 0xDD663399, 0xFFFF6600,
             0xDD669900};
 
     public static void drawCountries(RefugeeDataStore refugeeDataStore, GoogleMap map, List<Long> countryIds
@@ -32,8 +33,8 @@ public class Visualizer {
         int colorIndex = 0;
         // Maximum radius is defined
         for (Long countryId : countryIds) {
-            int strokeColor = strokeColors[colorIndex];
-            int fillColor = fillColors[colorIndex];
+            int strokeColor = STROKE_COLORS[colorIndex];
+            int fillColor = FILL_COLORS[colorIndex];
             colorMap.put(countryId, strokeColor);
             drawAllFromCircles(refugeeDataStore, map, countryId, strokeColor, scaling);
             drawToCircle(refugeeDataStore,

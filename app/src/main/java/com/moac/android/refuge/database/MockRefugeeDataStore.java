@@ -9,13 +9,13 @@ import java.util.List;
 
 public class MockRefugeeDataStore implements RefugeeDataStore {
 
-    List<Country> mCountries;
-    List<RefugeeFlow> mFlows;
+    List<Country> countries;
+    List<RefugeeFlow> flows;
 
     public MockRefugeeDataStore(List<Country> countrys,
                                 List<RefugeeFlow> fLows) {
-        mCountries = countrys;
-        mFlows = fLows;
+        countries = countrys;
+        flows = fLows;
     }
 
     /*
@@ -29,7 +29,7 @@ public class MockRefugeeDataStore implements RefugeeDataStore {
 
     @Override
     public Country getCountry(long id) {
-        for (Country c : mCountries) {
+        for (Country c : countries) {
             if (c.getId() == id) {
                 return c;
             }
@@ -113,7 +113,7 @@ public class MockRefugeeDataStore implements RefugeeDataStore {
     @Override
     public long getTotalRefugeeFlowTo(long toCountryId) {
         long totalCount = 0;
-        for (RefugeeFlow flow : mFlows) {
+        for (RefugeeFlow flow : flows) {
             if (flow.getToCountry().getId() == toCountryId) {
                 totalCount += flow.getRefugeeCount();
             }
@@ -134,7 +134,7 @@ public class MockRefugeeDataStore implements RefugeeDataStore {
     @Override
     public List<RefugeeFlow> getRefugeeFlowsTo(long toCountryId) {
         List<RefugeeFlow> result = new ArrayList<RefugeeFlow>();
-        for (RefugeeFlow flow : mFlows) {
+        for (RefugeeFlow flow : flows) {
             if (flow.getToCountry().getId() == toCountryId) {
                 result.add(flow);
             }
@@ -144,7 +144,7 @@ public class MockRefugeeDataStore implements RefugeeDataStore {
 
     @Override
     public Country getCountry(String countryName) {
-        for (Country country : mCountries) {
+        for (Country country : countries) {
             if (country.getName().equalsIgnoreCase(countryName)) {
                 return country;
             }

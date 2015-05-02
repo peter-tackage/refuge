@@ -7,8 +7,8 @@ import android.widget.ArrayAdapter;
 
 public class CountryAdapter extends ArrayAdapter<CountryAdapter.ViewModel> {
 
-    public CountryAdapter(Context _context) {
-        super(_context, 0);
+    public CountryAdapter(Context context) {
+        super(context, 0);
     }
 
     public interface ViewModel {
@@ -28,7 +28,7 @@ public class CountryAdapter extends ArrayAdapter<CountryAdapter.ViewModel> {
     }
 
     @Override
-    public View getView(int _position, View _convertView, ViewGroup _parent) {
-        return getItem(_position).getView(getContext(), _convertView, _parent);
+    public View getView(int position, View convertView, ViewGroup parent) {
+        return getItem(position).getView(getContext(), convertView, parent);
     }
 }

@@ -10,26 +10,26 @@ public class LoadDataRunnable implements Runnable {
 
     private static final String TAG = LoadDataRunnable.class.getSimpleName();
 
-    private final DataFileImporter mImporter;
-    private final InputStream mUNDataInputStream;
-    private final InputStream mCountriesLatLongInputStream;
+    private final DataFileImporter importer;
+    private final InputStream unDataInputStream;
+    private final InputStream countriesLatLongInputStream;
 
-    public LoadDataRunnable(DataFileImporter importer, InputStream UNDataInputStream, InputStream countriesLatLongInputStream) {
-        mImporter = importer;
-        mUNDataInputStream = UNDataInputStream;
-        mCountriesLatLongInputStream = countriesLatLongInputStream;
+    public LoadDataRunnable(DataFileImporter importer, InputStream unDataInputStream, InputStream countriesLatLongInputStream) {
+        this.importer = importer;
+        this.unDataInputStream = unDataInputStream;
+        this.countriesLatLongInputStream = countriesLatLongInputStream;
     }
 
     @Override
     public void run() {
         try {
-            mImporter.parse(mUNDataInputStream, mCountriesLatLongInputStream);
+            importer.parse(unDataInputStream, countriesLatLongInputStream);
         } catch (FileImportException e) {
             Log.e(TAG, "Failed to import the dataset", e);
         } finally {
             try {
-                mUNDataInputStream.close();
-                mCountriesLatLongInputStream.close();
+                unDataInputStream.close();
+                countriesLatLongInputStream.close();
             } catch (IOException ioe) {
                 Log.w(TAG, "Failed to close the input stream", ioe);
             }

@@ -4,13 +4,13 @@ import com.moac.android.refuge.adapter.CountryViewModel;
 
 public class CountryAddedEvent {
 
-    private final CountryViewModel mCountry;
+    private final CountryViewModel country;
 
     public CountryAddedEvent(CountryViewModel country) {
-        mCountry = country;
+        this.country = country;
     }
 
     public CountryViewModel getCountry() {
-        return mCountry;
+        return country;
     }
 }

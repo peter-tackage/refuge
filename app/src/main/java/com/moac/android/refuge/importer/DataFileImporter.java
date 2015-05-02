@@ -20,9 +20,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-/**
- * Created by amelysh on 08/02/14.
- */
 public class DataFileImporter {
 
     static final String TAG = DataFileImporter.class.getSimpleName();
@@ -34,12 +31,12 @@ public class DataFileImporter {
     static final String REFUGEE_NUM_TAG = "Refugees<sup>*</sup>";
 
     public RefugeeFlow refugeeFlow;
-    private RefugeeDataStore mRefugeeDataStore;
+    private RefugeeDataStore refugeeDataStore;
     private HashMap<String, Country> countriesMap;
 
     public DataFileImporter(RefugeeDataStore refugeeDataStore) {
-        mRefugeeDataStore = refugeeDataStore;
-        countriesMap = new HashMap<String, Country>();
+        this.refugeeDataStore = refugeeDataStore;
+        countriesMap = new HashMap<>();
     }
 
     public void parse(InputStream UNDataInputStream, InputStream countriesLatLongInputStream) throws FileImportException {
@@ -100,7 +97,7 @@ public class DataFileImporter {
                     refugeeFlow = new RefugeeFlow(fromCountry, toCountry);
                     refugeeFlow.setYear(year);
                     refugeeFlow.setRefugeeCount(refugeeNum);
-                    mRefugeeDataStore.createRefugeeFlow(refugeeFlow);
+                    refugeeDataStore.createRefugeeFlow(refugeeFlow);
                 }
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -116,7 +113,7 @@ public class DataFileImporter {
             String[] rowData = line.split(",");
             Country country = new Country(rowData[0], Double.parseDouble(rowData[1]), Double.parseDouble(rowData[2]));
             countriesMap.put(rowData[0], country);
-            mRefugeeDataStore.createCountry(country);
+            refugeeDataStore.createCountry(country);
         }
     }
 

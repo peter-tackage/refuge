@@ -15,56 +15,40 @@ public class Demography extends PersistableObject {
         public static final String MIGRATION_COLUMN = "MIGRATION";
     }
 
+    @DatabaseField(columnName = Columns.COUNTRY_COLUMN, foreign = true, canBeNull = false)
+    private Country country;
+
+    @DatabaseField(columnName = Columns.YEAR_COLUMN, canBeNull = false)
+    private int year;
+
+    @DatabaseField(columnName = Columns.POPULATION_COLUMN, canBeNull = false)
+    private long population;
+
+    @DatabaseField(columnName = Columns.MIGRATION_COLUMN, canBeNull = false)
+    private long migration;
+
     public Demography(Country country) {
-        mCountry = country;
+        this.country = country;
     }
 
     // Required by ORMLite
     public Demography() {
     }
 
-    @DatabaseField(columnName = Columns.COUNTRY_COLUMN, foreign = true, canBeNull = false)
-    private Country mCountry;
-
-    @DatabaseField(columnName = Columns.YEAR_COLUMN, canBeNull = false)
-    private int mYear;
-
-    @DatabaseField(columnName = Columns.POPULATION_COLUMN, canBeNull = false)
-    private long mPopulation;
-
-    @DatabaseField(columnName = Columns.MIGRATION_COLUMN, canBeNull = false)
-    private long mMigration;
-
     public Country getCountry() {
-        return mCountry;
+        return country;
     }
 
     public void setCountry(Country country) {
-        mCountry = country;
+        this.country = country;
     }
 
     public int getYear() {
-        return mYear;
-    }
-
-    public void setYear(int _year) {
-        mYear = _year;
+        return year;
     }
 
     public double getPopulation() {
-        return mPopulation;
-    }
-
-    public void setPopulation(long _population) {
-        mPopulation = _population;
-    }
-
-    public double getMigration() {
-        return mMigration;
-    }
-
-    public void setMigration(long _migration) {
-        mMigration = _migration;
+        return population;
     }
 
 }

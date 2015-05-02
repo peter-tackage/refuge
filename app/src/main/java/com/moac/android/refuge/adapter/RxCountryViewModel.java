@@ -18,9 +18,9 @@ public class RxCountryViewModel {
     private final Map<Long, Integer> colorMap;
     private final long countryId;
 
-    private String mCountryName;
-    private long mTotalIntake;
-    private int mColor;
+    private String countryName;
+    private long totalIntake;
+    private int color;
 
     public RxCountryViewModel(final RefugeeDataStore dataStore, final Map<Long, Integer> colorMap, final long countryId) {
         this.countryId = countryId;
@@ -33,31 +33,31 @@ public class RxCountryViewModel {
     }
 
     public String getCountryName() {
-        return mCountryName;
+        return countryName;
     }
 
     public int getColor() {
-        return mColor;
+        return color;
     }
 
     public Long getTotalIntake() {
-        return mTotalIntake;
+        return totalIntake;
     }
 
     public void subscribeToDataStore() {
         compositeSubscription.add(createCountryNameObservable().subscribe(new Action1<String>() {
             @Override public void call(String countryName) {
-                mCountryName = countryName;
+                RxCountryViewModel.this.countryName = countryName;
             }
         }));
         compositeSubscription.add(createTotalIntakeObservable().subscribe(new Action1<Long>() {
             @Override public void call(Long totalIntake) {
-                mTotalIntake = totalIntake;
+                RxCountryViewModel.this.totalIntake = totalIntake;
             }
         }));
         compositeSubscription.add(createCountryColorObservable().subscribe(new Action1<Integer>() {
             @Override public void call(Integer color) {
-                mColor = color;
+                RxCountryViewModel.this.color = color;
             }
         }));
     }

@@ -2,7 +2,6 @@ package com.moac.android.refuge;
 
 import android.app.Activity;
 import android.app.Application;
-import android.app.Fragment;
 import android.util.Log;
 
 import com.moac.android.refuge.inject.AppModule;
@@ -18,7 +17,7 @@ public class RefugeApplication extends Application {
         return (RefugeApplication) activity.getApplication();
     }
 
-    public static RefugeApplication from(Fragment fragment) {
+    public static RefugeApplication from(android.support.v4.app.Fragment fragment) {
         return (RefugeApplication) fragment.getActivity().getApplication();
     }
 

@@ -17,16 +17,16 @@ import dagger.Provides;
 public class AppModule {
     private static final String TAG = AppModule.class.getSimpleName();
 
-    private final RefugeApplication mApplication;
+    private final RefugeApplication application;
 
     public AppModule(RefugeApplication application) {
-        mApplication = application;
+        this.application = application;
     }
 
     @Provides
     @Singleton RefugeeDataStore provideDatabase() {
         Log.i(TAG, "Providing database");
-        DatabaseHelper databaseHelper = new DatabaseHelper(mApplication);
+        DatabaseHelper databaseHelper = new DatabaseHelper(application);
         return new PersistentRefugeeDataStore(databaseHelper);
     }
 
