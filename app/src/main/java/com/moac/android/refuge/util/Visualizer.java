@@ -21,48 +21,64 @@ public class Visualizer {
     private static final long MAX_RADIUS = 1500000; // 1500 kms
     private static final double MAX_AREA = Math.PI * MAX_RADIUS * MAX_RADIUS;
     private static final int MAGICAL_ALPHA_OFFSET = 120;
+    private static final int NO_FILL_COLOR = 0;
 
+    /*
+     * Draw all circles flow in/out for a specific country
+     */
     public static void drawCountries(RefugeeDataStore refugeeDataStore,
                                      GoogleMap map,
                                      List<DisplayedCountry> countries,
-                                     double scaling) {
-        Log.d(TAG, "drawCountries() - Draw TO countries: " + countries);
+                                     long maxFlow) {
+        Log.d(TAG, "drawCountries() - Draw flows for into countries: " + countries);
 
-        int colorIndex = 0;
-        // Maximum radius is defined
         for (DisplayedCountry country : countries) {
             int strokeColor = country.getColor();
             int fillColor = toFillColor(strokeColor);
-            drawAllFromCircles(refugeeDataStore, map, country.getId(), strokeColor, scaling);
+
+            // Draw all the circle for outgoing refugees
+            drawFromCircles(refugeeDataStore, map, country.getId(), strokeColor, maxFlow);
+
+            // Draw single circle for intake
             drawToCircle(refugeeDataStore,
                     map,
                     country.getId(),
-                    strokeColor, fillColor,
-                    (refugeeDataStore.getTotalRefugeeFlowTo(country.getId()) / scaling));
-            colorIndex++;
+                    strokeColor,
+                    fillColor,
+                    (refugeeDataStore.getTotalRefugeeFlowTo(country.getId()) / (double)maxFlow));
         }
-        Log.d(TAG, "drawCountries() - Using: " + scaling);
+        Log.d(TAG, "drawCountries() - Using: " + maxFlow);
     }
 
-    private static void drawAllFromCircles(RefugeeDataStore refugeeDataStore, GoogleMap map, long toCountryId, int strokeColor, double maxCount) {
-        Log.d(TAG, "drawAllFromCircles() - toCountryId: " + toCountryId + " toCountryColor: " + strokeColor + " maxFlow: " + maxCount);
+    /*
+     * Draws all circles for outgoing refugees to a specific country
+     */
+    private static void drawFromCircles(RefugeeDataStore refugeeDataStore, GoogleMap map, long toCountryId, int strokeColor, long maxCount) {
+        Log.d(TAG, "drawFromCircles() - toCountryId: " + toCountryId + " toCountryColor: " + strokeColor + " maxFlow: " + maxCount);
         List<RefugeeFlow> flows = refugeeDataStore.getRefugeeFlowsTo(toCountryId);
         for (RefugeeFlow flow : flows) {
             Country fromCountry = refugeeDataStore.getCountry(flow.getFromCountry().getId());
-            Log.d(TAG, "drawAllFromCircles() - Drawing flow from: " + fromCountry.getName() + " count: " + flow.getRefugeeCount() + " / " + maxCount);
-            drawScaledCircle(map, fromCountry.getLatLng(), (flow.getRefugeeCount() / maxCount), strokeColor, 0);
+            Log.d(TAG, "drawFromCircles() - Drawing flow from: " + fromCountry.getName() + " count: " + flow.getRefugeeCount() + " / " + maxCount);
+            drawScaledCircle(map, fromCountry.getLatLng(), (flow.getRefugeeCount() / (double)maxCount), strokeColor, NO_FILL_COLOR); // no fill
         }
     }
 
+    /*
+     * Draws a single circles from the intake to a specific country
+     */
     private static void drawToCircle(RefugeeDataStore refugeeDataStore, GoogleMap map, long toCountryId, int strokeColor, int fillColor, double percent) {
         Country toCountry = refugeeDataStore.getCountry(toCountryId);
         drawScaledCircle(map, toCountry.getLatLng(), percent, strokeColor, fillColor);
     }
 
-    public static Circle drawScaledCircle(GoogleMap map,
+    /*
+     * Draws a general circle shape with provided stroke & fill colors
+     */
+    private static Circle drawScaledCircle(GoogleMap map,
                                           LatLng coordinates,
                                           double percent,
-                                          int strokeColor, int fillColor) {
+                                          int strokeColor,
+                                          int fillColor) {
         Log.d(TAG, "drawScaledCircle() - percent: " + percent);
         double circleArea = percent * MAX_AREA;
         double radius = Math.sqrt(circleArea / Math.PI);
@@ -76,11 +92,14 @@ public class Visualizer {
         return map.addCircle(circleOptions);
     }
 
-    private static int toFillColor(int primaryColor) {
-        return Color.argb(Color.alpha(primaryColor) + MAGICAL_ALPHA_OFFSET,
-                Color.red(primaryColor),
-                Color.green(primaryColor),
-                Color.blue(primaryColor));
+    /*
+     * Generate an appropriate fill color for a given stroke color
+     */
+    private static int toFillColor(int strokeColor) {
+        return Color.argb(Color.alpha(strokeColor) + MAGICAL_ALPHA_OFFSET,
+                Color.red(strokeColor),
+                Color.green(strokeColor),
+                Color.blue(strokeColor));
     }
 }
 

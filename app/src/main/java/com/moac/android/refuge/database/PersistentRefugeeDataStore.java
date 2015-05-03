@@ -173,7 +173,12 @@ public class PersistentRefugeeDataStore implements RefugeeDataStore {
             List<String[]> results = rawResults.getResults();
             // the results array should have 1 value
             String[] resultArray = results.get(0);
-            return Long.parseLong(resultArray[0]);
+            String result = resultArray[0];
+            if (result != null) {
+                return Long.parseLong(result);
+            } else {
+                return 0;
+            }
         } catch (java.sql.SQLException e) {
             throw new android.database.SQLException(e.getMessage());
         }
@@ -183,14 +188,19 @@ public class PersistentRefugeeDataStore implements RefugeeDataStore {
         String query = "select sum(" + RefugeeFlow.Columns.REFUGEE_COUNT_COLUMN + ") from " + RefugeeFlow.TABLE_NAME + " where " + RefugeeFlow.Columns.FROM_COUNTRY_COLUMN + " = " + countryId;
         Log.d(TAG, query);
 
-        GenericRawResults<String[]> rawResults = null;
+        GenericRawResults<String[]> rawResults;
         try {
             rawResults = dbHelper.getDaoEx(RefugeeFlow.class).queryRaw(query);
 
             List<String[]> results = rawResults.getResults();
             // the results array should have 1 value
             String[] resultArray = results.get(0);
-            return Long.parseLong(resultArray[0]);
+            String result = resultArray[0];
+            if (result != null) {
+                return Long.parseLong(result);
+            } else {
+                return 0;
+            }
         } catch (java.sql.SQLException e) {
             throw new android.database.SQLException(e.getMessage());
         }

@@ -36,9 +36,7 @@ import com.moac.android.refuge.model.persistent.Country;
 import com.moac.android.refuge.util.DoOnce;
 import com.moac.android.refuge.util.Visualizer;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -174,11 +172,11 @@ public class MainActivity extends AppCompatActivity
         countriesSubscription = countriesModel.getDisplayedCountries()
                 .map(new Func1<List<DisplayedCountry>, CirclesViewModel>() {
                     @Override public CirclesViewModel call(List<DisplayedCountry> countries) {
-                        double scaling = 0.0;
-                        for (DisplayedCountry country: countries) {
-                            scaling = Math.max(scaling, refugeeDataStore.getTotalRefugeeFlowTo(country.getId()));
+                        long maxFlow = 0;
+                        for (DisplayedCountry country : countries) {
+                            maxFlow = Math.max(maxFlow, refugeeDataStore.getTotalRefugeeFlowTo(country.getId()));
                         }
-                        return new CirclesViewModel(countries, scaling);
+                        return new CirclesViewModel(countries, maxFlow);
                     }
                 })
                 .subscribeOn(Schedulers.computation())
@@ -187,7 +185,11 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void call(CirclesViewModel circlesViewModel) {
                         mapFragment.clear();
-                        Visualizer.drawCountries(refugeeDataStore, mapFragment, circlesViewModel.countries, circlesViewModel.scaling);
+                        if (circlesViewModel.maxFlow > 0) {
+                            Visualizer.drawCountries(refugeeDataStore, mapFragment, circlesViewModel.countries, circlesViewModel.maxFlow);
+                        } else {
+                            Toast.makeText(MainActivity.this, "No refugee flows found", Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
     }
@@ -291,11 +293,11 @@ public class MainActivity extends AppCompatActivity
 
     private class CirclesViewModel {
         List<DisplayedCountry> countries;
-        double scaling;
+        long maxFlow;
 
-        public CirclesViewModel(List<DisplayedCountry> countries, double scaling) {
+        public CirclesViewModel(List<DisplayedCountry> countries, long maxFlow) {
             this.countries = countries;
-            this.scaling = scaling;
+            this.maxFlow = maxFlow;
         }
     }
 }
