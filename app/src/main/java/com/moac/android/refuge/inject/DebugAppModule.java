@@ -9,8 +9,8 @@ import com.moac.android.refuge.database.RefugeeDataStore;
 import com.moac.android.refuge.fragment.NavigationDrawerFragment;
 import com.moac.android.refuge.importer.ImportService;
 import com.moac.android.refuge.model.CountriesModel;
-import com.moac.android.refuge.model.Country;
-import com.moac.android.refuge.model.RefugeeFlow;
+import com.moac.android.refuge.model.persistent.Country;
+import com.moac.android.refuge.model.persistent.RefugeeFlow;
 
 import java.util.ArrayList;
 import java.util.List;

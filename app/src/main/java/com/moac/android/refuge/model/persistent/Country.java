@@ -1,4 +1,4 @@
-package com.moac.android.refuge.model;
+package com.moac.android.refuge.model.persistent;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.j256.ormlite.field.DatabaseField;

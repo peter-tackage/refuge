@@ -9,10 +9,10 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTableConfig;
 import com.j256.ormlite.table.TableUtils;
-import com.moac.android.refuge.model.Country;
-import com.moac.android.refuge.model.Demography;
-import com.moac.android.refuge.model.PersistableObject;
-import com.moac.android.refuge.model.RefugeeFlow;
+import com.moac.android.refuge.model.persistent.Country;
+import com.moac.android.refuge.model.persistent.Demography;
+import com.moac.android.refuge.model.persistent.PersistableObject;
+import com.moac.android.refuge.model.persistent.RefugeeFlow;
 
 import java.util.HashMap;
 import java.util.List;

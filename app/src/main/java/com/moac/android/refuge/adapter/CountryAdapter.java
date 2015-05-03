@@ -3,32 +3,43 @@ package com.moac.android.refuge.adapter;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 
-public class CountryAdapter extends ArrayAdapter<CountryAdapter.ViewModel> {
+import java.util.List;
 
-    public CountryAdapter(Context context) {
-        super(context, 0);
+public class CountryAdapter extends BaseAdapter {
+
+    private final Context context;
+    private List<CountryViewModel> items;
+    private final ViewModelBinder binder;
+
+    public CountryAdapter(Context context, List<CountryViewModel> items, ViewModelBinder binder) {
+        this.context = context;
+        this.items = items;
+        this.binder = binder;
     }
 
-    public interface ViewModel {
-        View getView(Context context, View convertView, ViewGroup parent);
+    @Override
+    public int getCount() {
+        return items.size();
+    }
 
-        long getId();
+    @Override
+    public CountryViewModel getItem(int position) {
+        return items.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return getItem(position).getId();
-    }
-
-    @Override
-    public boolean hasStableIds() {
-        return true;
+        return getItem(position).getCountryId();
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        return getItem(position).getView(getContext(), convertView, parent);
+        return binder.getView(context, convertView, parent, items.get(position));
+    }
+
+    public interface ViewModelBinder {
+        View getView(Context context, View convertView, ViewGroup parent, CountryViewModel item);
     }
 }

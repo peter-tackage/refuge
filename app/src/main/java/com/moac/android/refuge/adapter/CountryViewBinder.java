@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import com.moac.android.refuge.R;
 
-public class CountryViewBinder implements RxCountryAdapter.ViewModelBinder {
+public class CountryViewBinder implements CountryAdapter.ViewModelBinder {
 
     private final int resourceId;
 
@@ -17,7 +17,7 @@ public class CountryViewBinder implements RxCountryAdapter.ViewModelBinder {
     }
 
     @Override
-    public View getView(Context context, View convertView, ViewGroup parent, final RxCountryViewModel item) {
+    public View getView(Context context, View convertView, ViewGroup parent, final CountryViewModel item) {
         View view = convertView;
         TextView countryNameTextView;
         TextView totalIntakeTextView;

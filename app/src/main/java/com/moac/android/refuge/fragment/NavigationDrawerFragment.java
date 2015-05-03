@@ -16,20 +16,22 @@ import android.widget.ListView;
 
 import com.moac.android.refuge.R;
 import com.moac.android.refuge.RefugeApplication;
+import com.moac.android.refuge.adapter.CountryAdapter;
 import com.moac.android.refuge.adapter.CountryViewBinder;
-import com.moac.android.refuge.adapter.RxCountryAdapter;
-import com.moac.android.refuge.adapter.RxCountryViewModel;
+import com.moac.android.refuge.adapter.CountryViewModel;
 import com.moac.android.refuge.database.RefugeeDataStore;
+import com.moac.android.refuge.model.DisplayedCountry;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 public class NavigationDrawerFragment extends android.support.v4.app.Fragment {
 
@@ -39,7 +41,7 @@ public class NavigationDrawerFragment extends android.support.v4.app.Fragment {
     private ActionBarDrawerToggle drawerToggle;
     private View fragmentContainerView;
     private ListView drawerListView;
-    private List<RxCountryViewModel> viewModels = Collections.emptyList();
+    private List<CountryViewModel> viewModels = Collections.emptyList();
 
     private FragmentContainer fragmentContainer;
     private Subscription displayCountrySubscription;
@@ -68,7 +70,6 @@ public class NavigationDrawerFragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Inject dependencies
         RefugeApplication.from(this).inject(this);
     }
 
@@ -76,19 +77,21 @@ public class NavigationDrawerFragment extends android.support.v4.app.Fragment {
     public void onResume() {
         super.onResume();
         displayCountrySubscription = fragmentContainer.getDisplayedCountries()
-                .map(new Func1<List<Long>, List<RxCountryViewModel>>() {
+                .map(new Func1<List<DisplayedCountry>, List<CountryViewModel>>() {
                     @Override
-                    public List<RxCountryViewModel> call(List<Long> countryIds) {
-                        return createDataModel(countryIds
-                                , fragmentContainer.getColorMap()
-                                , fragmentContainer.getRefugeeDataStore());
+                    public List<CountryViewModel> call(List<DisplayedCountry> countries) {
+                        return createDataModel(countries,
+                                fragmentContainer.getRefugeeDataStore());
                     }
-                }).subscribe(new Action1<List<RxCountryViewModel>>() {
+                })
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<List<CountryViewModel>>() {
                     @Override
-                    public void call(List<RxCountryViewModel> viewModels) {
+                    public void call(List<CountryViewModel> viewModels) {
                         NavigationDrawerFragment.this.viewModels = viewModels;
                         subscribeViewModels();
-                        drawerListView.setAdapter(new RxCountryAdapter(getActivity(),
+                        drawerListView.setAdapter(new CountryAdapter(getActivity(),
                                 NavigationDrawerFragment.this.viewModels,
                                 new CountryViewBinder(R.layout.country_info_row)));
                     }
@@ -181,32 +184,29 @@ public class NavigationDrawerFragment extends android.support.v4.app.Fragment {
     }
 
     public static interface FragmentContainer {
-        Observable<List<Long>> getDisplayedCountries();
-
-        Map<Long, Integer> getColorMap();
+        Observable<List<DisplayedCountry>> getDisplayedCountries();
 
         RefugeeDataStore getRefugeeDataStore();
     }
 
-    private static List<RxCountryViewModel> createDataModel(List<Long> countryIds,
-                                                            Map<Long, Integer> colorMap,
-                                                            RefugeeDataStore refugeeDataStore) {
-        List<RxCountryViewModel> models = new ArrayList<RxCountryViewModel>();
-        for (Long id : countryIds) {
-            RxCountryViewModel viewModel = new RxCountryViewModel(refugeeDataStore, colorMap, id);
+    private static List<CountryViewModel> createDataModel(List<DisplayedCountry> countries,
+                                                          RefugeeDataStore refugeeDataStore) {
+        List<CountryViewModel> models = new ArrayList<>();
+        for (DisplayedCountry country : countries) {
+            CountryViewModel viewModel = new CountryViewModel(refugeeDataStore, country.getId(), country.getColor());
             models.add(viewModel);
         }
         return models;
     }
 
     private void subscribeViewModels() {
-        for (RxCountryViewModel vm : viewModels) {
+        for (CountryViewModel vm : viewModels) {
             vm.subscribeToDataStore();
         }
     }
 
     private void unsubscribeViewModels() {
-        for (RxCountryViewModel vm : viewModels) {
+        for (CountryViewModel vm : viewModels) {
             vm.unsubscribeFromDataStore();
         }
     }

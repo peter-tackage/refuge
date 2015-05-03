@@ -1,4 +1,4 @@
-package com.moac.android.refuge.model;
+package com.moac.android.refuge.model.persistent;
 
 import com.j256.ormlite.field.DatabaseField;
 

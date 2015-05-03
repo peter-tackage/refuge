@@ -1,8 +1,8 @@
 package com.moac.android.refuge.database;
 
-import com.moac.android.refuge.model.Country;
-import com.moac.android.refuge.model.Demography;
-import com.moac.android.refuge.model.RefugeeFlow;
+import com.moac.android.refuge.model.persistent.Country;
+import com.moac.android.refuge.model.persistent.Demography;
+import com.moac.android.refuge.model.persistent.RefugeeFlow;
 
 import java.util.ArrayList;
 import java.util.List;

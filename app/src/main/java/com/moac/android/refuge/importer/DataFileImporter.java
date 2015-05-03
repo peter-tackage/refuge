@@ -1,8 +1,8 @@
 package com.moac.android.refuge.importer;
 
 import com.moac.android.refuge.database.RefugeeDataStore;
-import com.moac.android.refuge.model.Country;
-import com.moac.android.refuge.model.RefugeeFlow;
+import com.moac.android.refuge.model.persistent.Country;
+import com.moac.android.refuge.model.persistent.RefugeeFlow;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

@@ -4,7 +4,7 @@ import android.test.InstrumentationTestCase;
 
 import com.moac.android.refuge.database.DatabaseHelper;
 import com.moac.android.refuge.database.PersistentRefugeeDataStore;
-import com.moac.android.refuge.model.RefugeeFlow;
+import com.moac.android.refuge.model.persistent.RefugeeFlow;
 
 import java.io.IOException;
 

@@ -1,56 +1,83 @@
 package com.moac.android.refuge.adapter;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import com.moac.android.refuge.database.RefugeeDataStore;
+import com.moac.android.refuge.model.persistent.Country;
 
-import com.moac.android.refuge.R;
-import com.moac.android.refuge.model.Country;
+import rx.Observable;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.subscriptions.CompositeSubscription;
 
-public class CountryViewModel implements CountryAdapter.ViewModel {
+public class CountryViewModel {
 
-    private final long totalIntake;
-    private final Country country;
-    private final int color;
+    private final CompositeSubscription compositeSubscription = new CompositeSubscription();
 
-    public CountryViewModel(Country country, int color, long totalIntake) {
-        this.country = country;
-        this.totalIntake = totalIntake;
+    private final RefugeeDataStore dataStore;
+    private final long countryId;
+
+    private String countryName;
+    private long totalIntake;
+    private int color;
+
+    public CountryViewModel(final RefugeeDataStore dataStore, final long countryId, int color) {
+        this.dataStore = dataStore;
+        this.countryId = countryId;
         this.color = color;
     }
 
-    @Override
-    public View getView(Context context, View convertView, ViewGroup parent) {
-        View view = convertView;
-        TextView countryNameTextView;
-        TextView totalIntakeTextView;
-        View colorIndicatorView;
-
-        if (view == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.country_info_row, parent, false);
-            countryNameTextView = (TextView) view.findViewById(R.id.country_name_textView);
-            totalIntakeTextView = (TextView) view.findViewById(R.id.total_intake_textView);
-            colorIndicatorView = (View) view.findViewById(R.id.country_item_check_indicator);
-            view.setTag(R.id.country_name_textView, countryNameTextView);
-            view.setTag(R.id.total_intake_textView, totalIntakeTextView);
-            view.setTag(R.id.country_item_check_indicator, colorIndicatorView);
-        } else {
-            countryNameTextView = (TextView) view.getTag(R.id.country_name_textView);
-            totalIntakeTextView = (TextView) view.getTag(R.id.total_intake_textView);
-            colorIndicatorView = (View) view.getTag(R.id.country_item_check_indicator);
-        }
-
-        countryNameTextView.setText(country.getName());
-        totalIntakeTextView.setText(String.valueOf(totalIntake));
-        colorIndicatorView.setBackgroundColor(color);
-
-        return view;
+    public long getCountryId() {
+        return countryId;
     }
 
-    @Override
-    public long getId() {
-        return country.getId();
+    public String getCountryName() {
+        return countryName;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public Long getTotalIntake() {
+        return totalIntake;
+    }
+
+    public void subscribeToDataStore() {
+        compositeSubscription.add(createCountryNameObservable().subscribe(new Action1<String>() {
+            @Override public void call(String countryName) {
+                CountryViewModel.this.countryName = countryName;
+            }
+        }));
+        compositeSubscription.add(createTotalIntakeObservable().subscribe(new Action1<Long>() {
+            @Override public void call(Long totalIntake) {
+                CountryViewModel.this.totalIntake = totalIntake;
+            }
+        }));
+        compositeSubscription.add(createCountryColorObservable().subscribe(new Action1<Integer>() {
+            @Override public void call(Integer color) {
+                CountryViewModel.this.color = color;
+            }
+        }));
+    }
+
+    public void unsubscribeFromDataStore() {
+        compositeSubscription.clear();
+    }
+
+    private Observable<String> createCountryNameObservable() {
+        return Observable.just(dataStore.getCountry(countryId))
+                .map(new Func1<Country, String>() {
+                    @Override
+                    public String call(Country country) {
+                        return country.getName();
+                    }
+                });
+    }
+
+    private Observable<Long> createTotalIntakeObservable() {
+        return Observable.just(dataStore.getTotalRefugeeFlowTo(countryId));
+    }
+
+    private Observable<Integer> createCountryColorObservable() {
+        return Observable.just(color);
     }
 }

@@ -31,7 +31,8 @@ import com.moac.android.refuge.database.RefugeeDataStore;
 import com.moac.android.refuge.fragment.NavigationDrawerFragment;
 import com.moac.android.refuge.importer.ImportService;
 import com.moac.android.refuge.model.CountriesModel;
-import com.moac.android.refuge.model.Country;
+import com.moac.android.refuge.model.DisplayedCountry;
+import com.moac.android.refuge.model.persistent.Country;
 import com.moac.android.refuge.util.DoOnce;
 import com.moac.android.refuge.util.Visualizer;
 
@@ -46,6 +47,8 @@ import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
@@ -62,7 +65,6 @@ public class MainActivity extends AppCompatActivity
     private NavigationDrawerFragment navigationDrawerFragment;
     private GoogleMap mapFragment;
     private SearchView searchView;
-    private Map<Long, Integer> colorMap = new HashMap<>();
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private Subscription importSubscription;
@@ -114,6 +116,8 @@ public class MainActivity extends AppCompatActivity
         RefugeApplication.from(this).inject(this);
         setContentView(R.layout.activity_main);
 
+        initDataStore();
+
         navigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 
@@ -144,15 +148,6 @@ public class MainActivity extends AppCompatActivity
 
         handleIntent(getIntent());
 
-        // add infos for the service which file to download and where to store
-
-        Intent intent = new Intent(this, ImportService.class);
-
-        if (!DoOnce.isDone(this, ImportService.LOAD_DATA_TASK_TAG)) {
-            startService(intent);
-            bindService(intent, connection, Service.BIND_AUTO_CREATE);
-        }
-
     }
 
     @Override
@@ -177,17 +172,22 @@ public class MainActivity extends AppCompatActivity
     public void onResume() {
         super.onResume();
         countriesSubscription = countriesModel.getDisplayedCountries()
-                .subscribe(new Action1<List<Long>>() {
-                    @Override
-                    public void call(List<Long> countryIds) {
-                        mapFragment.clear();
+                .map(new Func1<List<DisplayedCountry>, CirclesViewModel>() {
+                    @Override public CirclesViewModel call(List<DisplayedCountry> countries) {
                         double scaling = 0.0;
-                        // TODO This should be moved to background
-                        for (Long id : countryIds) {
-                            // TODO Surely there's a build-in function for this
-                            scaling = Math.max(scaling, refugeeDataStore.getTotalRefugeeFlowTo(id));
+                        for (DisplayedCountry country: countries) {
+                            scaling = Math.max(scaling, refugeeDataStore.getTotalRefugeeFlowTo(country.getId()));
                         }
-                        Visualizer.drawCountries(refugeeDataStore, mapFragment, countryIds, colorMap, scaling);
+                        return new CirclesViewModel(countries, scaling);
+                    }
+                })
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<CirclesViewModel>() {
+                    @Override
+                    public void call(CirclesViewModel circlesViewModel) {
+                        mapFragment.clear();
+                        Visualizer.drawCountries(refugeeDataStore, mapFragment, circlesViewModel.countries, circlesViewModel.scaling);
                     }
                 });
     }
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onCountryItemSelected(long countryId, boolean isSelected) {
-        // TODO
+        // TODO Display some further info about country
     }
 
     @Override
@@ -233,6 +233,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.action_about:
+                // TODO Show info
                 return false;
             case R.id.action_clear:
                 countriesModel.clear();
@@ -246,6 +247,16 @@ public class MainActivity extends AppCompatActivity
     protected void onNewIntent(Intent intent) {
         Log.i(TAG, "onNewIntent - received intent");
         handleIntent(intent);
+    }
+
+    @Override
+    public Observable<List<DisplayedCountry>> getDisplayedCountries() {
+        return countriesModel.getDisplayedCountries();
+    }
+
+    @Override
+    public RefugeeDataStore getRefugeeDataStore() {
+        return refugeeDataStore;
     }
 
     private void handleIntent(Intent intent) {
@@ -270,18 +281,21 @@ public class MainActivity extends AppCompatActivity
         countriesModel.add(country.getId());
     }
 
-    @Override
-    public Observable<List<Long>> getDisplayedCountries() {
-        return countriesModel.getDisplayedCountries();
+    private void initDataStore() {
+        Intent intent = new Intent(this, ImportService.class);
+        if (!DoOnce.isDone(this, ImportService.LOAD_DATA_TASK_TAG)) {
+            startService(intent);
+            bindService(intent, connection, Service.BIND_AUTO_CREATE);
+        }
     }
 
-    @Override
-    public Map<Long, Integer> getColorMap() {
-        return colorMap;
-    }
+    private class CirclesViewModel {
+        List<DisplayedCountry> countries;
+        double scaling;
 
-    @Override
-    public RefugeeDataStore getRefugeeDataStore() {
-        return refugeeDataStore;
+        public CirclesViewModel(List<DisplayedCountry> countries, double scaling) {
+            this.countries = countries;
+            this.scaling = scaling;
+        }
     }
 }
