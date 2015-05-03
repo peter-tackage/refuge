@@ -7,6 +7,8 @@ import com.moac.android.refuge.activity.MainActivity;
 import com.moac.android.refuge.database.MockRefugeeDataStore;
 import com.moac.android.refuge.database.RefugeeDataStore;
 import com.moac.android.refuge.fragment.NavigationDrawerFragment;
+import com.moac.android.refuge.importer.ImportService;
+import com.moac.android.refuge.model.CountriesModel;
 import com.moac.android.refuge.model.Country;
 import com.moac.android.refuge.model.RefugeeFlow;
 
@@ -15,9 +17,13 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
+import dagger.Module;
 import dagger.Provides;
 
-@dagger.Module(injects = {RefugeApplication.class, MainActivity.class, NavigationDrawerFragment.class})
+@Module(injects = {RefugeApplication.class,
+        MainActivity.class,
+        NavigationDrawerFragment.class,
+        ImportService.class})
 public class DebugAppModule {
     private static final String TAG = DebugAppModule.class.getSimpleName();
 
@@ -27,10 +33,13 @@ public class DebugAppModule {
         this.application = application;
     }
 
-    @Provides
-    @Singleton RefugeeDataStore provideDatabase() {
+    @Provides @Singleton RefugeeDataStore provideDatabase() {
         Log.i(TAG, "Providing debug database");
         return makeMock();
+    }
+
+    @Provides @Singleton CountriesModel provideCountriesModel() {
+        return new CountriesModel();
     }
 
     private MockRefugeeDataStore makeMock() {

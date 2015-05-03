@@ -8,7 +8,7 @@ import rx.Observable;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.Subject;
 
-public class DisplayedStore {
+public class CountriesModel {
 
     private List<Long> ids = new ArrayList<>();
     private Subject<List<Long>, List<Long>> subject = BehaviorSubject.create();
@@ -19,11 +19,6 @@ public class DisplayedStore {
 
     public void add(Long id) {
         ids.add(id);
-        subject.onNext(ids);
-    }
-
-    public void addAll(List<Long> ids) {
-        ids.addAll(ids);
         subject.onNext(ids);
     }
 

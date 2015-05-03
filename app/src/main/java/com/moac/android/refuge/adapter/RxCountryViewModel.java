@@ -67,7 +67,7 @@ public class RxCountryViewModel {
     }
 
     private Observable<String> createCountryNameObservable() {
-        return Observable.from(dataStore.getCountry(countryId))
+        return Observable.just(dataStore.getCountry(countryId))
                 .map(new Func1<Country, String>() {
                     @Override
                     public String call(Country country) {
@@ -77,10 +77,10 @@ public class RxCountryViewModel {
     }
 
     private Observable<Long> createTotalIntakeObservable() {
-        return Observable.from(dataStore.getTotalRefugeeFlowTo(countryId));
+        return Observable.just(dataStore.getTotalRefugeeFlowTo(countryId));
     }
 
     private Observable<Integer> createCountryColorObservable() {
-        return Observable.from(colorMap.get(countryId));
+        return Observable.just(colorMap.get(countryId));
     }
 }
