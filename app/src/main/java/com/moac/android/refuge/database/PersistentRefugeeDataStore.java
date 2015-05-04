@@ -170,15 +170,7 @@ public class PersistentRefugeeDataStore implements RefugeeDataStore {
         GenericRawResults<String[]> rawResults;
         try {
             rawResults = dbHelper.getDaoEx(RefugeeFlow.class).queryRaw(query);
-            List<String[]> results = rawResults.getResults();
-            // the results array should have 1 value
-            String[] resultArray = results.get(0);
-            String result = resultArray[0];
-            if (result != null) {
-                return Long.parseLong(result);
-            } else {
-                return 0;
-            }
+            return getLongResult(rawResults.getResults());
         } catch (java.sql.SQLException e) {
             throw new android.database.SQLException(e.getMessage());
         }
@@ -191,19 +183,17 @@ public class PersistentRefugeeDataStore implements RefugeeDataStore {
         GenericRawResults<String[]> rawResults;
         try {
             rawResults = dbHelper.getDaoEx(RefugeeFlow.class).queryRaw(query);
-
-            List<String[]> results = rawResults.getResults();
-            // the results array should have 1 value
-            String[] resultArray = results.get(0);
-            String result = resultArray[0];
-            if (result != null) {
-                return Long.parseLong(result);
-            } else {
-                return 0;
-            }
+            return getLongResult(rawResults.getResults());
         } catch (java.sql.SQLException e) {
             throw new android.database.SQLException(e.getMessage());
         }
+    }
+
+    private static long getLongResult(List<String[]> results) {
+        // the results array should have 1 value
+        String[] resultArray = results.get(0);
+        String result = resultArray[0];
+        return result != null ? Long.parseLong(result) : 0;
     }
 
     private List<RefugeeFlow> queryAllRefugeeFlowsFrom(long countryId) {
