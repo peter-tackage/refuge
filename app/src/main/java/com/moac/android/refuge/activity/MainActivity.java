@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity
                         mapFragment.clear();
                         if (circlesViewModel.maxFlow > 0) {
                             Visualizer.drawCountries(refugeeDataStore, mapFragment, circlesViewModel.countries, circlesViewModel.maxFlow);
-                        } else {
+                        } else if (!circlesViewModel.countries.isEmpty()) {
                             Toast.makeText(MainActivity.this, "No refugee flows found", Toast.LENGTH_LONG).show();
                         }
                     }
