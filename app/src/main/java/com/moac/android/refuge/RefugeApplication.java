@@ -6,6 +6,7 @@ import android.app.Service;
 import android.util.Log;
 
 import com.moac.android.refuge.inject.AppModule;
+import com.squareup.leakcanary.LeakCanary;
 
 import dagger.ObjectGraph;
 
@@ -32,6 +33,7 @@ public class RefugeApplication extends Application {
         Object prodModule = new AppModule(this);
         //Object debugAppModule = new DebugAppModule(this);
         objectGraph = ObjectGraph.create(prodModule);
+        LeakCanary.install(this);
     }
 
     public void inject(Object object) {
